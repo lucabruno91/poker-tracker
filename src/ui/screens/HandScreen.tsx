@@ -5,7 +5,8 @@ import { Bb, Cards, CopyButton, Money } from "../components";
 import { formatDate, formatEuro } from "../format";
 import { href } from "../router";
 import { HandReplayer } from "../HandReplayer";
-import type { AppData } from "../data";
+import { useHandNotes, type AppData } from "../data";
+import { HandNotesEditor } from "../HandNotesEditor";
 import { filterHands, parseHandQuery } from "../../stats/handFilters";
 import { useHeroHands } from "./HandsScreen";
 
@@ -25,9 +26,10 @@ function lineClass(line: string, hero: string | null): string {
 /** Navigazione nella lista Mani da cui si è arrivati (stessi filtri, stesso ordine). */
 function ListNav({ data, id, from }: { data: AppData; id: string; from: string }) {
   const all = useHeroHands(data);
+  const notes = useHandNotes();
   const list = useMemo(
-    () => (data.hero ? filterHands(all, data.hero, parseHandQuery(from)) : []),
-    [all, data.hero, from],
+    () => (data.hero ? filterHands(all, data.hero, parseHandQuery(from), notes) : []),
+    [all, data.hero, from, notes],
   );
   const i = list.findIndex((h) => h.id === id);
   const prev = i > 0 ? list[i - 1] : undefined;
@@ -91,6 +93,7 @@ function HandView({ hand, hero }: { hand: Hand; hero: string | null }) {
       </div>
 
       <HandReplayer hand={hand} />
+      <HandNotesEditor handId={hand.id} />
 
       <div className="table-wrap card">
         <table>
