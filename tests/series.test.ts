@@ -30,6 +30,6 @@ describe("buildResultSeries", () => {
   });
 
   it("senza hero le serie sono vuote", () => {
-    expect(buildResultSeries(sessions, byId, null)).toEqual({ total: [], showdown: [], nonShowdown: [], sessionStarts: [] });
+    expect(buildResultSeries(sessions, byId, null)).toEqual({ total: [], showdown: [], nonShowdown: [], sessionStarts: [], allInEv: [] });
   });
 });

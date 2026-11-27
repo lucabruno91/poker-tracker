@@ -306,6 +306,26 @@ Il filtro si applica alle **sessioni**: una sessione è un solo tavolo, un solo 
 
 Il filtro resta salvato in `settings` (chiave `filters`). Il bb/100 si calcola dal risultato in bb sommato mano per mano, così è corretto anche con stake diversi.
 
+### 6.11 All-in EV
+
+**Spot.** Una mano è uno spot di all-in se:
+- l'hero arriva allo showdown con **esattamente un avversario**;
+- le carte di entrambi sono note (`Dealt to` e `showed` / `mucked` nel riepilogo);
+- almeno un'azione è all-in;
+- l'ultima azione di gioco avviene **prima del river**.
+
+**Calcolo.**
+- **Equity:** esatta, enumerando tutte le carte mancanti al board a partire da quelle note alla strada dell'ultima azione (0 preflop, 3 al flop, 4 al turn); il pareggio vale metà.
+- **Risultato atteso** dell'hero: `equity × (piatto − rake) − investito`, dove `investito` è al netto delle restituzioni.
+- **Linea «all-in EV»:** come il totale (6.9), ma ogni spot conta con il risultato atteso invece di quello reale.
+- **«Fortuna»:** reale − atteso, sommato sugli spot.
+
+**Limiti.**
+- Gli all-in prima del river con più di due giocatori allo showdown restano con il risultato reale e sono contati a parte.
+- Se dopo l'all-in dell'hero altri giocatori continuano a puntare e poi uno folda, l'equity si calcola alla strada dell'ultima azione: è un'approssimazione.
+
+**Valutatore.** Le mani a 7 carte sono verificate contro un valutatore di riferimento (migliore delle 21 mani da 5) su 20.000 coppie casuali. Il calcolo gira in un Web Worker: un all-in preflop richiede 1.712.304 board.
+
 ## 7. Persistenza
 
 Database IndexedDB tramite Dexie, nome `poker-tracker`, versione 1:
