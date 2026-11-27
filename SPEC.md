@@ -284,6 +284,15 @@ Per ogni mano dell'hero si prende la sua posizione (6.4) e si sommano i contator
 
 Le carte dell'hero (`Dealt to`) si riducono a una delle 169 classi: coppia (`QQ`), suited (`AKs`) o offsuit (`AKo`), con il rango più alto per primo. Per ogni classe: numero di mani, mani VPIP e risultato in bb sommato mano per mano. Griglia 13×13 con ranghi da A a 2: coppie in diagonale, suited sopra, offsuit sotto. La somma della griglia è uguale al totale delle mani con carte note.
 
+### 6.9 Linee showdown / senza showdown
+
+Il grafico cumulato (in bb, mano per mano, sessioni nell'ordine dell'elenco) ha tre linee:
+- **totale**;
+- **showdown**: mani in cui l'hero è nell'elenco `showdown` (6.1, dal riepilogo `showed` / `mucked`);
+- **senza showdown**: tutte le altre, compresi i piatti vinti senza mostrare.
+
+A ogni mano: totale = showdown + senza showdown.
+
 ## 7. Persistenza
 
 Database IndexedDB tramite Dexie, nome `poker-tracker`, versione 1:

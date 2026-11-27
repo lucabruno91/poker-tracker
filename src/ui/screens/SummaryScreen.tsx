@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { addInto, bbPer100, emptyCounters } from "../../stats/aggregate";
-import { compareHandIds } from "../../stats/sessions";
+import { buildResultSeries } from "../../stats/series";
 import { CumulativeChart } from "../CumulativeChart";
 import { Kpi, signClass, StatsGrid } from "../components";
 import { formatBb, formatEuro, formatSigned } from "../format";
@@ -13,32 +13,28 @@ import type { Hand } from "../../types";
 export function SummaryScreen({ data }: { data: AppData }) {
   const { sessions, handsById, hero } = data;
 
-  const { points, starts, totalBb, counters, net, rebuys, bb, heroHands } = useMemo(() => {
-    const heroHands: Hand[] = [];
-    const points: number[] = [];
-    const starts: number[] = [];
+  const series = useMemo(() => buildResultSeries(sessions, handsById, hero), [sessions, handsById, hero]);
+
+  const { counters, net, rebuys, bb, heroHands } = useMemo(() => {
     const counters = emptyCounters();
-    let cum = 0;
+    const heroHands: Hand[] = [];
     let net = 0;
     let rebuys = 0;
-    let bb = 2;
     for (const s of sessions) {
-      starts.push(points.length);
       addInto(counters, s.hero);
       net += s.net;
       rebuys += s.rebuys;
-      const ids = [...s.handIds].sort(compareHandIds);
-      for (const id of ids) {
+      for (const id of s.handIds) {
         const h = handsById.get(id);
-        if (!h || !hero || !h.players.some((p) => p.name === hero)) continue;
-        heroHands.push(h);
-        bb = h.bb;
-        cum += (h.net[hero] ?? 0) / h.bb;
-        points.push(cum);
+        if (h && hero && h.players.some((p) => p.name === hero)) heroHands.push(h);
       }
     }
-    return { points, starts, totalBb: cum, counters, net, rebuys, bb, heroHands };
+    const last = sessions[sessions.length - 1];
+    const bb = (last && handsById.get(last.handIds[0] ?? "")?.bb) || 2;
+    return { counters, net, rebuys, bb, heroHands };
   }, [sessions, handsById, hero]);
+
+  const totalBb = series.total[series.total.length - 1] ?? 0;
 
   if (sessions.length === 0) {
     return (
@@ -72,8 +68,19 @@ export function SummaryScreen({ data }: { data: AppData }) {
 
       <section className="card">
         <h2 style={{ marginTop: 0 }}>Risultato cumulato (bb)</h2>
-        <CumulativeChart points={points} sessionStarts={starts} />
-        <p className="small muted">Le linee verticali separano le sessioni.</p>
+        <CumulativeChart
+          lines={[
+            { label: "Totale", points: series.total, className: "line-total" },
+            { label: "Showdown", points: series.showdown, className: "line-sd" },
+            { label: "Senza showdown", points: series.nonShowdown, className: "line-nsd" },
+          ]}
+          sessionStarts={series.sessionStarts}
+        />
+        <p className="small muted">
+          Le linee verticali separano le sessioni. «Showdown»: mani in cui hai mostrato o buttato le carte allo
+          showdown; «senza showdown»: piatti vinti o persi prima. Una linea senza showdown in discesa di solito vuol dire
+          che abbandoni troppo spesso o che i tuoi bluff non passano.
+        </p>
       </section>
 
       <section className="card">

@@ -15,6 +15,7 @@ import { addInto, emptyCounters } from "../src/stats/aggregate";
 import { buildSessions } from "../src/stats/sessions";
 import { heroByPosition } from "../src/stats/byPosition";
 import { heroByStartingHand } from "../src/stats/startingHands";
+import { buildResultSeries } from "../src/stats/series";
 import type { Counters, Hand } from "../src/types";
 
 interface Reference {
@@ -91,6 +92,13 @@ describe.skipIf(!enabled)("valori di riferimento (fixture reali)", () => {
     const res = [...heroByStartingHand(hands, ref.hero).values()];
     expect(res.reduce((a, r) => a + r.hands, 0)).toBe(ref.totals.hands);
     expect(res.reduce((a, r) => a + r.netBb, 0)).toBeCloseTo(ref.totals.netBb, 9);
+  });
+
+  it("grafico: ultimo valore e totale = showdown + senza showdown", () => {
+    const series = buildResultSeries(sessions, new Map(hands.map((h) => [h.id, h])), ref.hero);
+    expect(series.total).toHaveLength(ref.totals.hands);
+    expect(series.total.at(-1)).toBeCloseTo(ref.totals.netBb, 9);
+    series.total.forEach((t, i) => expect(t).toBeCloseTo((series.showdown[i] ?? 0) + (series.nonShowdown[i] ?? 0), 9));
   });
 
   for (const expected of ref.sessions) {
