@@ -13,6 +13,8 @@ import { splitHands } from "../src/parser/splitHands";
 import { handStats } from "../src/stats/handStats";
 import { addInto, emptyCounters } from "../src/stats/aggregate";
 import { buildSessions } from "../src/stats/sessions";
+import { buildReplay } from "../src/stats/replay";
+import { checkReplay } from "./helpers";
 import { classifyAllIn, expectedNet, spotEquity } from "../src/stats/allInEv";
 import { groupEvenings } from "../src/stats/evenings";
 import { heroByPosition } from "../src/stats/byPosition";
@@ -134,6 +136,10 @@ describe.skipIf(!enabled)("valori di riferimento (fixture reali)", () => {
     expect(series.allInEv.at(-1)).toBeCloseTo(ref.totals.netBb - actualBb + evBb, 6);
     console.log(`all-in: ${spots} spot, ${multiway} multiway, reale ${actualBb.toFixed(1)} bb, atteso ${evBb.toFixed(1)} bb`);
   }, 120_000);
+
+  it("replay: invarianti su tutte le mani", () => {
+    for (const h of hands) checkReplay(h, buildReplay(h));
+  });
 
   for (const expected of ref.sessions) {
     it(`contatori dell'hero — ${expected.table}`, () => {

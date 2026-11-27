@@ -4,6 +4,7 @@ import type { Hand } from "../../types";
 import { Bb, Cards, CopyButton, Money } from "../components";
 import { formatDate, formatEuro } from "../format";
 import { href } from "../router";
+import { HandReplayer } from "../HandReplayer";
 import type { AppData } from "../data";
 
 function lineClass(line: string, hero: string | null): string {
@@ -57,6 +58,8 @@ function HandView({ hand, hero }: { hand: Hand; hero: string | null }) {
         <CopyButton text={() => hand.raw} label="Copia" />
       </div>
 
+      <HandReplayer hand={hand} />
+
       <div className="table-wrap card">
         <table>
           <thead>
@@ -84,13 +87,16 @@ function HandView({ hand, hero }: { hand: Hand; hero: string | null }) {
         </table>
       </div>
 
-      <pre className="hand-raw" aria-label="Testo originale della mano">
-        {lines.map((line, i) => (
-          <div key={i} className={lineClass(line, hero)}>
-            {line || " "}
-          </div>
-        ))}
-      </pre>
+      <details className="card">
+        <summary>Testo originale</summary>
+        <pre className="hand-raw" aria-label="Testo originale della mano" style={{ marginTop: "0.75rem" }}>
+          {lines.map((line, i) => (
+            <div key={i} className={lineClass(line, hero)}>
+              {line || " "}
+            </div>
+          ))}
+        </pre>
+      </details>
     </>
   );
 }

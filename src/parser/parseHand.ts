@@ -7,16 +7,16 @@ import { assignPositions } from "./positions";
 const HEADER_RE =
   /^PokerStars Hand #(\d+):\s+Hold'em No Limit \(€([\d.]+)\/€([\d.]+) EUR\).* - (\d{4})\/(\d{2})\/(\d{2}) (\d{1,2}):(\d{2}):(\d{2}) (\S+)/;
 const TABLE_RE = /^Table '([^']+)' (\d+)-max Seat #(\d+) is the button/;
-const SEAT_RE = /^Seat (\d+): (\S+) \(€([\d.]+) in chips\)(.*)$/;
-const BLIND_RE = /^(\S+): posts (small blind|big blind|small & big blinds) €([\d.]+)/;
-const DEALT_RE = /^Dealt to (\S+) \[(.+?)\]/;
-const STREET_RE = /^\*\*\* (HOLE CARDS|FLOP|TURN|RIVER|SHOW DOWN|SUMMARY) \*\*\*(.*)/;
-const FOLD_CHECK_RE = /^(\S+): (folds|checks)$/;
-const CALL_BET_RE = /^(\S+): (calls|bets) €([\d.]+)( and is all-in)?$/;
-const RAISE_RE = /^(\S+): raises €([\d.]+) to €([\d.]+)( and is all-in)?$/;
-const UNCALLED_RE = /^Uncalled bet \(€([\d.]+)\) returned to (\S+)$/;
-const COLLECTED_RE = /^(\S+) collected €([\d.]+) from (?:pot|main pot|side pot(?:-\d+)?)$/;
-const SUMMARY_SHOWDOWN_RE = /^Seat \d+: (\S+).*?(showed|mucked) \[/;
+export const SEAT_RE = /^Seat (\d+): (\S+) \(€([\d.]+) in chips\)(.*)$/;
+export const BLIND_RE = /^(\S+): posts (small blind|big blind|small & big blinds) €([\d.]+)/;
+export const DEALT_RE = /^Dealt to (\S+) \[(.+?)\]/;
+export const STREET_RE = /^\*\*\* (HOLE CARDS|FLOP|TURN|RIVER|SHOW DOWN|SUMMARY) \*\*\*(.*)/;
+export const FOLD_CHECK_RE = /^(\S+): (folds|checks)$/;
+export const CALL_BET_RE = /^(\S+): (calls|bets) €([\d.]+)( and is all-in)?$/;
+export const RAISE_RE = /^(\S+): raises €([\d.]+) to €([\d.]+)( and is all-in)?$/;
+export const UNCALLED_RE = /^Uncalled bet \(€([\d.]+)\) returned to (\S+)$/;
+export const COLLECTED_RE = /^(\S+) collected €([\d.]+) from (?:pot|main pot|side pot(?:-\d+)?)$/;
+export const SUMMARY_SHOWDOWN_RE = /^Seat \d+: (\S+).*?(showed|mucked) \[/;
 const RAKE_RE = /Rake €([\d.]+)/;
 const CARDS_RE = /\[([^\]]+)\]/g;
 

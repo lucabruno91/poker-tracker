@@ -326,6 +326,25 @@ Il filtro resta salvato in `settings` (chiave `filters`). Il bb/100 si calcola d
 
 **Valutatore.** Le mani a 7 carte sono verificate contro un valutatore di riferimento (migliore delle 21 mani da 5) su 20.000 coppie casuali. Il calcolo gira in un Web Worker: un all-in preflop richiede 1.712.304 board.
 
+### 6.12 Replay della mano
+
+Il replay rilegge il testo originale con le stesse espressioni del parser (4.3) e produce un passo per ogni evento:
+1. giocatori seduti;
+2. un passo per ogni blind;
+3. carte distribuite;
+4. un passo per ogni azione (un rilancio «a X» mette `X − puntata già davanti`);
+5. a ogni cambio di strada le puntate vanno al centro e si scopre il board;
+6. puntata non chiamata restituita;
+7. showdown, con le carte di chi è nell'elenco `showdown`;
+8. un passo per ogni `collected`;
+9. passo finale con i risultati.
+
+Le carte degli avversari note dal riepilogo restano coperte fino allo showdown, salvo l'interruttore «Mostra tutte le carte».
+
+**Invarianti** (testati su tutte le mani delle fixture):
+- a ogni passo, `Σ stack + Σ puntate + piatto + rake prelevato` = totale iniziale;
+- all'ultimo passo il piatto è 0, il rake è quello della mano e ogni stack = stack iniziale + netto.
+
 ## 7. Persistenza
 
 Database IndexedDB tramite Dexie, nome `poker-tracker`, versione 1:
@@ -360,7 +379,7 @@ Schermate:
 2. **Riepilogo** — sessioni, mani, risultato (bb ed €), bb/100; grafico del risultato cumulato in bb mano per mano, con linee verticali tra le sessioni; riquadro «Le tue statistiche» con valori fuori riferimento evidenziati.
 3. **Sessioni** — elenco dalla più recente: data, tavolo, mani, risultato, ricariche. Dettaglio sessione: statistiche dell'hero nella sessione, **le 10 mani con il piatto più grande in cui l'hero ha messo soldi** (posizione, carte, risultato), nota libera, selezione delle mani da esportare.
 4. **Avversari** — ricerca per nome o etichetta, ordinamento per mani / VPIP / ultima sessione; riga con nome, mani, VPIP/PFR, etichetta. Dettaglio: tutte le statistiche, sessioni in cui è comparso, mani mostrate allo showdown, nota di Claude, etichetta e nota modificabili.
-5. **Mano** — testo originale con le azioni evidenziate per strada; pulsante «Copia».
+5. **Mano**: replay grafico passo per passo (6.12) su un tavolo ovale con l'hero in basso. Si va avanti e indietro con ◀ ▶ o con le frecce della tastiera (Home/End per inizio e fine). Sotto, i giocatori con i risultati e il testo originale con le azioni evidenziate per strada, più il pulsante «Copia».
 6. **Impostazioni** — nome dell'hero, backup ed eliminazione dei dati.
 
 Accessibilità: tutti i controlli raggiungibili da tastiera, `aria-label` sugli elementi solo icona, contrasto sufficiente sul tema scuro.

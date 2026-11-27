@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 const HALF_WIDTH = 150; // metà della larghezza massima del tooltip (18rem ≈ 288px) + margine
 const GAP = 6;
@@ -8,7 +9,7 @@ const GAP = 6;
  * focus da tastiera (Tab), e i lettori di schermo leggono la spiegazione come
  * descrizione. È posizionato `fixed`, così non viene tagliato dalle tabelle
  * scorrevoli, e resta dentro la finestra. Niente `title`: non funziona da
- * tastiera né su touch.
+ * tastiera né su touch. Il tooltip vive in un portal su <body>.
  */
 export function Term({ children, tip }: { children: ReactNode; tip: string }) {
   const id = useId();
@@ -59,9 +60,14 @@ export function Term({ children, tip }: { children: ReactNode; tip: string }) {
       }}
     >
       {children}
-      <span id={id} role="tooltip" className={`term-tip${style ? " open" : ""}`} style={style ?? undefined}>
-        {tip}
-      </span>
+      {/* Portal su <body>: un antenato con `transform` (es. i posti del replayer)
+          cambierebbe il riferimento di `position: fixed`. */}
+      {createPortal(
+        <span id={id} role="tooltip" className={`term-tip${style ? " open" : ""}`} style={style ?? undefined}>
+          {tip}
+        </span>,
+        document.body,
+      )}
     </span>
   );
 }
