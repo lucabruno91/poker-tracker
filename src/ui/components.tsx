@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Cents, Counters, Label } from "../types";
-import { displayStats, FEW_CASES, REFERENCE, type DisplayStats, type Ratio } from "../stats/aggregate";
+import { displayStats } from "../stats/aggregate";
+import { assessStat, FEW_CASES, STAT_REFERENCES, type StatKey } from "../stats/reference";
 import type { EffectiveLabel } from "../labels/autoLabel";
 import { formatAf, formatBb, formatEuro, formatPct } from "./format";
 
@@ -78,43 +79,39 @@ export function Cards({ cards }: { cards: string | null }) {
   );
 }
 
-const STAT_ROWS: { key: keyof DisplayStats; name: string; af?: boolean }[] = [
-  { key: "vpip", name: "VPIP" },
-  { key: "pfr", name: "PFR" },
-  { key: "threeBet", name: "3-bet" },
-  { key: "foldTo3Bet", name: "Fold contro 3-bet" },
-  { key: "cbet", name: "C-bet al flop" },
-  { key: "wtsd", name: "WTSD" },
-  { key: "wsd", name: "W$SD" },
-  { key: "af", name: "AF", af: true },
-];
+const STAT_KEYS = Object.keys(STAT_REFERENCES) as StatKey[];
 
-function refText(key: keyof DisplayStats, af: boolean): string {
-  const r = REFERENCE[key];
-  return af ? `${r.min}–${r.max}` : `${Math.round(r.min * 100)}–${Math.round(r.max * 100)}%`;
-}
-
-function isOut(key: keyof DisplayStats, r: Ratio): boolean {
-  if (r.value === null) return false;
-  const ref = REFERENCE[key];
-  return r.value < ref.min || r.value > ref.max;
-}
-
-/** Griglia delle statistiche; con `compare` evidenzia i valori fuori riferimento. */
+/**
+ * Griglia delle statistiche. Con `compare` mostra l'intervallo ottimale e, per i
+ * valori fuori, direzione, distanza e cosa significano.
+ */
 export function StatsGrid({ counters, compare = false }: { counters: Counters; compare?: boolean }) {
   const d = displayStats(counters);
   return (
     <div className="stats-grid">
-      {STAT_ROWS.map(({ key, name, af }) => {
+      {STAT_KEYS.map((key) => {
+        const ref = STAT_REFERENCES[key];
         const r = d[key];
-        const out = compare && isOut(key, r);
+        const a = assessStat(key, r);
+        const out = compare && (a.status === "high" || a.status === "low");
+        const warn = out && !a.smallSample;
         return (
-          <div key={key} className={`stat${out ? " out" : ""}`}>
-            <div className="stat-name">{name}</div>
-            <div className="stat-value">{af ? formatAf(r) : formatPct(r)}</div>
+          <div key={key} className={`stat${warn ? " out" : ""}`}>
+            <div className="stat-name">{ref.name}</div>
+            <div className="stat-value">{ref.unit === "ratio" ? formatAf(r) : formatPct(r)}</div>
             {r.cases > 0 && r.cases < FEW_CASES && <div className="stat-ref">solo {r.cases} casi</div>}
-            {compare && <div className="stat-ref">rif. {refText(key, Boolean(af))}</div>}
-            {out && <div className="stat-flag">fuori riferimento</div>}
+            {compare && <div className="stat-ref">Ottimale: {a.rangeText}</div>}
+            {out && a.smallSample && (
+              <div className="stat-note">Fuori dall'ottimale, ma campione piccolo: valore poco affidabile.</div>
+            )}
+            {warn && (
+              <>
+                <div className="stat-flag">
+                  {a.status === "high" ? "Troppo alto" : "Troppo basso"} ({a.deltaText})
+                </div>
+                <div className="stat-hint">{a.hint}</div>
+              </>
+            )}
           </div>
         );
       })}

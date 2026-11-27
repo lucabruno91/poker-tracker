@@ -74,7 +74,7 @@ export function SummaryScreen({ data }: { data: AppData }) {
       <section className="card">
         <h2 style={{ marginTop: 0 }}>Le tue statistiche</h2>
         <StatsGrid counters={counters} compare />
-        <p className="small muted">Riferimenti: regular 6-max. In rosso i valori fuori dall'intervallo.</p>
+        <p className="small muted">Intervalli ottimali per un regular 6-max. In rosso i valori fuori, con cosa significano.</p>
       </section>
     </>
   );
