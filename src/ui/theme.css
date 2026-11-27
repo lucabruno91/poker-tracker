@@ -209,6 +209,29 @@ tbody tr:hover { background: rgba(241, 232, 214, 0.03); }
 .chart .line { fill: none; stroke: var(--gold); stroke-width: 2; }
 .chart text { fill: var(--muted-text); font-family: var(--font-mono); font-size: 11px; }
 
+/* --- Griglia mani iniziali */
+.hand-grid { width: auto; border-collapse: separate; border-spacing: 2px; }
+.hand-grid td { padding: 0; border: 0; border-radius: 4px; background: var(--ink); }
+.hand-grid td.empty { background: rgba(241, 232, 214, 0.03); }
+.hand-grid .cell {
+  width: 3.1rem;
+  height: 2.6rem;
+  padding: 0.1rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
+  color: var(--paper);
+}
+.hand-grid .cell:disabled { opacity: 1; color: var(--muted); }
+.hand-grid .cell[aria-pressed="true"] { border-color: var(--gold); }
+.hand-grid .cell-name { font-size: 0.72rem; font-weight: 600; }
+.hand-grid .cell-value { font-family: var(--font-mono); font-size: 0.68rem; }
+
 /* --- Mano */
 .hand-raw {
   font-family: var(--font-mono);
