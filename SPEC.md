@@ -365,6 +365,8 @@ Schermate:
 
 Accessibilità: tutti i controlli raggiungibili da tastiera, `aria-label` sugli elementi solo icona, contrasto sufficiente sul tema scuro.
 
+Acronimi (VPIP, PFR, 3-bet, C-bet, WTSD, W$SD, AF, bb, bb/100, all-in EV, posizioni, s/o) con tooltip esplicativo: si apre al passaggio del mouse e al focus da tastiera, si chiude con Esc ed è letto dai lettori di schermo. Le spiegazioni stanno in un unico glossario (`src/ui/glossary.ts`), coerente con le definizioni della sezione 6.
+
 ## 9. Esportazione per Claude
 
 Pulsante nel dettaglio sessione. Produce un testo da copiare, nel formato:

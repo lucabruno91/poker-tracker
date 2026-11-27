@@ -11,6 +11,8 @@ import { PositionTable } from "../PositionTable";
 import { StartingHandsGrid } from "../StartingHandsGrid";
 import type { Hand } from "../../types";
 import { useAllInEv, type AllInEvState } from "../useAllInEv";
+import { TERM_GLOSSARY } from "../glossary";
+import { Term } from "../Term";
 
 /** Riga sotto il grafico: all-in considerati e differenza tra risultato reale e atteso. */
 function AllInSummary({ state }: { state: AllInEvState }) {
@@ -27,7 +29,10 @@ function AllInSummary({ state }: { state: AllInEvState }) {
   const luck = actualBb - expectedBb;
   return (
     <p className="small" role="status">
-      <strong>All-in prima del river:</strong> {spots.length}
+      <strong>
+        <Term tip={TERM_GLOSSARY.allIn}>All-in</Term> prima del river:
+      </strong>{" "}
+      {spots.length}
       {excluded} · risultato reale <span className={`num ${signClass(actualBb)}`}>{formatBb(actualBb)}</span>, atteso{" "}
       <span className={`num ${signClass(expectedBb)}`}>{formatBb(expectedBb)}</span> · fortuna{" "}
       <span className={`num ${signClass(luck)}`}>{formatBb(luck)}</span>
@@ -91,10 +96,10 @@ export function SummaryScreen({ data }: { data: AppData }) {
           <div className="kpis">
             <Kpi label="Sessioni" value={String(sessions.length)} />
             <Kpi label="Mani" value={String(counters.hands)} />
-            <Kpi label="Risultato" value={formatBb(totalBb)} cls={signClass(totalBb)} />
+            <Kpi label={<>Risultato (<Term tip={TERM_GLOSSARY.bb}>bb</Term>)</>} value={formatBb(totalBb)} cls={signClass(totalBb)} />
             <Kpi label="Risultato €" value={formatEuro(net, true)} cls={signClass(net)} />
             <Kpi
-              label="bb/100"
+              label={<Term tip={TERM_GLOSSARY.bb100}>bb/100</Term>}
               value={formatSigned(per100)}
               cls={signClass(per100 ?? 0)}
             />
@@ -102,14 +107,16 @@ export function SummaryScreen({ data }: { data: AppData }) {
           </div>
 
           <section className="card">
-            <h2 style={{ marginTop: 0 }}>Risultato cumulato (bb)</h2>
+            <h2 style={{ marginTop: 0 }}>
+              Risultato cumulato (<Term tip={TERM_GLOSSARY.bb}>bb</Term>)
+            </h2>
             <CumulativeChart
               lines={[
                 { label: "Totale", points: series.total, className: "line-total" },
-                { label: "Showdown", points: series.showdown, className: "line-sd" },
-                { label: "Senza showdown", points: series.nonShowdown, className: "line-nsd" },
+                { label: "Showdown", tip: TERM_GLOSSARY.showdown, points: series.showdown, className: "line-sd" },
+                { label: "Senza showdown", tip: TERM_GLOSSARY.showdown, points: series.nonShowdown, className: "line-nsd" },
                 ...(series.allInEv.length > 0
-                  ? [{ label: "All-in EV", points: series.allInEv, className: "line-ev" }]
+                  ? [{ label: "All-in EV", tip: TERM_GLOSSARY.allInEv, points: series.allInEv, className: "line-ev" }]
                   : []),
               ]}
               sessionStarts={series.sessionStarts}

@@ -5,6 +5,8 @@ import { FEW_CASES } from "../stats/reference";
 import type { Hand } from "../types";
 import { signClass } from "./components";
 import { formatBb, formatPct, formatSigned } from "./format";
+import { POSITION_GLOSSARY, STAT_GLOSSARY, TERM_GLOSSARY } from "./glossary";
+import { Term } from "./Term";
 
 /** Statistiche e risultato dell'hero per posizione. */
 export function PositionTable({ hands, hero }: { hands: Hand[]; hero: string }) {
@@ -18,11 +20,21 @@ export function PositionTable({ hands, hero }: { hands: Hand[]; hero: string }) 
           <tr>
             <th>Posizione</th>
             <th className="num">Mani</th>
-            <th className="num">VPIP</th>
-            <th className="num">PFR</th>
-            <th className="num">3-bet</th>
-            <th className="num">Risultato</th>
-            <th className="num">bb/100</th>
+            <th className="num">
+              <Term tip={STAT_GLOSSARY.vpip}>VPIP</Term>
+            </th>
+            <th className="num">
+              <Term tip={STAT_GLOSSARY.pfr}>PFR</Term>
+            </th>
+            <th className="num">
+              <Term tip={STAT_GLOSSARY.threeBet}>3-bet</Term>
+            </th>
+            <th className="num">
+              Risultato (<Term tip={TERM_GLOSSARY.bb}>bb</Term>)
+            </th>
+            <th className="num">
+              <Term tip={TERM_GLOSSARY.bb100}>bb/100</Term>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -31,7 +43,9 @@ export function PositionTable({ hands, hero }: { hands: Hand[]; hero: string }) 
             const per100 = counters.hands > 0 ? (100 * netBb) / counters.hands : null;
             return (
               <tr key={position}>
-                <td>{position}</td>
+                <td>
+                  <Term tip={POSITION_GLOSSARY[position]}>{position}</Term>
+                </td>
                 <td className="num">
                   {counters.hands}
                   {counters.hands < FEW_CASES && <span className="muted small"> (poche)</span>}
