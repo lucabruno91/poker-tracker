@@ -97,14 +97,27 @@ export function Term({ children, tip }: { children: ReactNode; tip: string }) {
   );
 }
 
-/** Pulsante con tooltip esplicativo (stesse regole di `Term`). */
+/**
+ * Pulsante con tooltip esplicativo (stesse regole di `Term`). Da disattivato
+ * usa `aria-disabled` invece di `disabled`: resta raggiungibile con Tab e il
+ * tooltip può spiegare perché non si può usare.
+ */
 export function TipButton({
-  tip, children, onClick, disabled,
+  tip, children, onClick, disabled = false,
 }: { tip: string; children: ReactNode; onClick: () => void; disabled?: boolean }) {
   const t = useTooltip<HTMLButtonElement>(tip);
   return (
     <>
-      <button ref={t.ref} type="button" onClick={onClick} disabled={disabled} {...t.props}>
+      <button
+        ref={t.ref}
+        type="button"
+        aria-disabled={disabled}
+        className={disabled ? "is-disabled" : undefined}
+        onClick={() => {
+          if (!disabled) onClick();
+        }}
+        {...t.props}
+      >
         {children}
       </button>
       {t.node}

@@ -453,3 +453,7 @@ input[type="date"] {
 .legend-item.off .legend-swatch { opacity: 0.3; }
 .legend-item.off .legend-label,
 .legend-item.off .num { opacity: 0.5; text-decoration: line-through; }
+
+/* Pulsante disattivato ma focalizzabile (aria-disabled), per mostrare il tooltip. */
+button.is-disabled { opacity: 0.5; cursor: not-allowed; }
+button.is-disabled:hover { border-color: #3a444e; }

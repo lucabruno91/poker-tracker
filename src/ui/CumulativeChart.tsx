@@ -26,6 +26,10 @@ export const SESSION_TIP = {
     "Seleziona nel grafico la sessione precedente, con il suo riepilogo e le sue mani. Senza selezione parte dall'ultima sessione; con un tratto libero salta all'ultima sessione che inizia prima.",
   next:
     "Seleziona nel grafico la sessione successiva, con il suo riepilogo e le sue mani. Senza selezione parte dalla prima sessione; con un tratto libero salta alla prima sessione che inizia dopo.",
+  noPrev:
+    "Non c'è una sessione precedente nel grafico. Se è attivo un filtro di periodo o di stake, le sessioni fuori dal filtro non sono incluse.",
+  noNext:
+    "Non c'è una sessione successiva nel grafico. Se è attivo un filtro di periodo o di stake, le sessioni fuori dal filtro non sono incluse.",
 } as const;
 
 /** Spostamento minimo (in pixel dello schermo) perché un gesto sia un trascinamento. */
@@ -51,9 +55,29 @@ export function indexAt(offsetX: number, rectWidth: number, count: number): numb
 }
 
 /** Intervalli [inizio, fine] delle sessioni con almeno una mano. */
-function sessionRanges(sessionStarts: number[], count: number): ChartRange[] {
+export function sessionRanges(sessionStarts: number[], count: number): ChartRange[] {
   const starts = [...new Set(sessionStarts.filter((s) => s < count))].sort((a, b) => a - b);
   return starts.map((s) => sessionRangeAt(sessionStarts, count, s));
+}
+
+/**
+ * Indice (in `ranges`) della sessione da selezionare con «precedente» (-1) o
+ * «successiva» (+1), oppure -1 se in quella direzione non c'è una sessione
+ * diversa da quella già selezionata. Senza selezione si parte dalla prima o
+ * dall'ultima; con un tratto libero si salta alla sessione che inizia dopo o
+ * prima del suo inizio. Funzione pura.
+ */
+export function targetSession(ranges: ChartRange[], selection: ChartRange | null, dir: -1 | 1): number {
+  if (ranges.length === 0) return -1;
+  if (!selection) return dir > 0 ? 0 : ranges.length - 1;
+  const current = ranges.findIndex(([s, e]) => s === selection[0] && e === selection[1]);
+  const i =
+    current >= 0
+      ? current + dir
+      : dir > 0
+        ? ranges.findIndex(([s]) => s > selection[0])
+        : ranges.findLastIndex(([s]) => s < selection[0]);
+  return i >= 0 && i < ranges.length ? i : -1;
 }
 
 interface Props {
@@ -142,15 +166,16 @@ export function CumulativeChart({ lines, sessionStarts, selection = null, onSele
   // --- Selezione da tastiera: campi numerici e sessione precedente/successiva.
   const ranges = sessionRanges(sessionStarts, count);
   const currentSession = selection ? ranges.findIndex(([s, e]) => s === selection[0] && e === selection[1]) : -1;
-  const goSession = (dir: -1 | 1) => {
-    if (!onSelect || ranges.length === 0) return;
-    let i: number;
-    if (currentSession >= 0) i = currentSession + dir;
-    else if (selection) i = dir > 0 ? ranges.findIndex(([s]) => s > selection[0]) : ranges.findLastIndex(([s]) => s < selection[0]);
-    else i = dir > 0 ? 0 : ranges.length - 1;
-    const r = ranges[i];
-    if (r) onSelect(r);
+  const prevTarget = targetSession(ranges, selection, -1);
+  const nextTarget = targetSession(ranges, selection, 1);
+  const goSession = (target: number) => {
+    const r = ranges[target];
+    if (onSelect && r) onSelect(r);
   };
+  const sessionInfo =
+    currentSession >= 0
+      ? `sessione ${currentSession + 1} di ${ranges.length}`
+      : `${ranges.length} ${ranges.length === 1 ? "sessione" : "sessioni"}`;
   const setBound = (which: 0 | 1, value: string) => {
     if (!onSelect) return;
     const n = Number(value);
@@ -258,10 +283,21 @@ export function CumulativeChart({ lines, sessionStarts, selection = null, onSele
             placeholder={String(count)}
             onChange={(e) => setBound(1, e.target.value)}
           />
-          <TipButton tip={SESSION_TIP.prev} onClick={() => goSession(-1)}>
+          <TipButton
+            tip={prevTarget < 0 ? SESSION_TIP.noPrev : SESSION_TIP.prev}
+            disabled={prevTarget < 0}
+            onClick={() => goSession(prevTarget)}
+          >
             ‹ Sessione precedente
           </TipButton>
-          <TipButton tip={SESSION_TIP.next} onClick={() => goSession(1)}>
+          <span className="muted num" aria-live="polite">
+            {sessionInfo}
+          </span>
+          <TipButton
+            tip={nextTarget < 0 ? SESSION_TIP.noNext : SESSION_TIP.next}
+            disabled={nextTarget < 0}
+            onClick={() => goSession(nextTarget)}
+          >
             Sessione successiva ›
           </TipButton>
         </div>

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { CumulativeChart, type ChartRange } from "../src/ui/CumulativeChart";
+import { CumulativeChart, sessionRanges, targetSession, type ChartRange } from "../src/ui/CumulativeChart";
 
 afterEach(cleanup);
 
@@ -131,5 +131,63 @@ describe("CumulativeChart — pulsanti di sessione", () => {
     fireEvent.mouseLeave(next);
     expect(tip?.classList.contains("open")).toBe(false);
     expect(screen.getByRole("button", { name: "‹ Sessione precedente" })).toBeTruthy();
+  });
+});
+
+describe("targetSession", () => {
+  const ranges: ChartRange[] = [[0, 3], [4, 6], [7, 9]];
+  it("senza selezione parte dalla prima o dall'ultima", () => {
+    expect(targetSession(ranges, null, 1)).toBe(0);
+    expect(targetSession(ranges, null, -1)).toBe(2);
+  });
+  it("con una sessione selezionata passa alla vicina, -1 ai bordi", () => {
+    expect(targetSession(ranges, [4, 6], 1)).toBe(2);
+    expect(targetSession(ranges, [4, 6], -1)).toBe(0);
+    expect(targetSession(ranges, [7, 9], 1)).toBe(-1);
+    expect(targetSession(ranges, [0, 3], -1)).toBe(-1);
+  });
+  it("con un tratto libero salta alla sessione dopo o prima del suo inizio", () => {
+    expect(targetSession(ranges, [2, 5], 1)).toBe(1);
+    expect(targetSession(ranges, [2, 5], -1)).toBe(0);
+    expect(targetSession(ranges, [8, 9], 1)).toBe(-1);
+  });
+  it("una sola sessione: dopo averla selezionata non c'è altro", () => {
+    expect(targetSession([[0, 9]], null, 1)).toBe(0);
+    expect(targetSession([[0, 9]], [0, 9], 1)).toBe(-1);
+    expect(targetSession([[0, 9]], [0, 9], -1)).toBe(-1);
+    expect(targetSession([], null, 1)).toBe(-1);
+  });
+  it("sessionRanges ignora le sessioni senza mani", () => {
+    expect(sessionRanges([0, 3, 3, 5], 7)).toEqual([[0, 2], [3, 4], [5, 6]]);
+  });
+});
+
+describe("CumulativeChart — una sola sessione (es. filtro «Oggi»)", () => {
+  it("i pulsanti si disattivano e lo dicono, l'indicatore mostra la posizione", () => {
+    const onSelect = vi.fn();
+    const { rerender } = render(
+      <CumulativeChart lines={[{ label: "Totale", points, className: "line-total" }]} sessionStarts={[0]} selection={null} onSelect={onSelect} />,
+    );
+    const next = screen.getByRole("button", { name: "Sessione successiva ›" });
+    expect(next.getAttribute("aria-disabled")).toBe("false");
+    expect(screen.getByText("1 sessione")).toBeTruthy();
+    fireEvent.click(next);
+    expect(onSelect).toHaveBeenLastCalledWith([0, 9]);
+
+    rerender(
+      <CumulativeChart lines={[{ label: "Totale", points, className: "line-total" }]} sessionStarts={[0]} selection={[0, 9]} onSelect={onSelect} />,
+    );
+    const nextAfter = screen.getByRole("button", { name: "Sessione successiva ›" });
+    const prevAfter = screen.getByRole("button", { name: "‹ Sessione precedente" });
+    expect(nextAfter.getAttribute("aria-disabled")).toBe("true");
+    expect(prevAfter.getAttribute("aria-disabled")).toBe("true");
+    expect(screen.getByText("sessione 1 di 1")).toBeTruthy();
+    onSelect.mockClear();
+    fireEvent.click(nextAfter);
+    expect(onSelect).not.toHaveBeenCalled();
+    const tip = document.getElementById(nextAfter.getAttribute("aria-describedby") ?? "");
+    expect(tip?.textContent).toContain("Non c'è una sessione successiva");
+    // Disattivato ma raggiungibile da tastiera, per leggere il motivo.
+    expect(nextAfter.hasAttribute("disabled")).toBe(false);
   });
 });
