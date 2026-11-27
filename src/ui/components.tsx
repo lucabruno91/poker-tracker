@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { Cents, Counters, Label } from "../types";
 import { displayStats } from "../stats/aggregate";
 import { assessStat, FEW_CASES, STAT_REFERENCES, type StatKey } from "../stats/reference";
 import type { EffectiveLabel } from "../labels/autoLabel";
 import { formatAf, formatBb, formatEuro, formatPct } from "./format";
+import { STAT_GLOSSARY } from "./glossary";
+import { Term } from "./Term";
 
 export const LABEL_COLORS: Record<Label, string> = {
   "Regular forte": "#B5534F",
@@ -41,7 +43,7 @@ export function LabelBadge({ info }: { info: EffectiveLabel }) {
   );
 }
 
-export function Kpi({ label, value, cls = "" }: { label: string; value: string | number; cls?: string }) {
+export function Kpi({ label, value, cls = "" }: { label: ReactNode; value: string | number; cls?: string }) {
   return (
     <div className="kpi">
       <div className="kpi-label">{label}</div>
@@ -97,7 +99,9 @@ export function StatsGrid({ counters, compare = false }: { counters: Counters; c
         const warn = out && !a.smallSample;
         return (
           <div key={key} className={`stat${warn ? " out" : ""}`}>
-            <div className="stat-name">{ref.name}</div>
+            <div className="stat-name">
+              <Term tip={STAT_GLOSSARY[key]}>{ref.name}</Term>
+            </div>
             <div className="stat-value">{ref.unit === "ratio" ? formatAf(r) : formatPct(r)}</div>
             {r.cases > 0 && r.cases < FEW_CASES && <div className="stat-ref">solo {r.cases} casi</div>}
             {compare && <div className="stat-ref">Ottimale: {a.rangeText}</div>}

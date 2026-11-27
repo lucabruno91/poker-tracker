@@ -5,6 +5,8 @@ import type { Hand } from "../types";
 import { Bb, Cards } from "./components";
 import { formatBb, formatDate, formatSigned } from "./format";
 import { href } from "./router";
+import { TERM_GLOSSARY } from "./glossary";
+import { Term } from "./Term";
 
 type Metric = "total" | "perHand";
 
@@ -84,7 +86,9 @@ export function StartingHandsGrid({ hands, hero }: { hands: Hand[]; hero: string
         </table>
       </div>
       <p className="small muted">
-        Verde: in attivo; rosso: in perdita; più intenso = valore più grande. Clicca una cella per vedere le mani.
+        Coppie in diagonale, <Term tip={TERM_GLOSSARY.suited}>suited (s)</Term> sopra,{" "}
+        <Term tip={TERM_GLOSSARY.suited}>offsuit (o)</Term> sotto. Verde: in attivo; rosso: in perdita; più intenso =
+        valore più grande. Clicca una cella per vedere le mani.
       </p>
 
       {selected && (

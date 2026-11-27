@@ -1,7 +1,10 @@
 import { formatBb } from "./format";
+import { Term } from "./Term";
 
 export interface ChartLine {
   label: string;
+  /** Spiegazione mostrata come tooltip sull'etichetta della legenda. */
+  tip?: string;
   /** Valori cumulati in bb, uno per mano. */
   points: number[];
   /** Classe CSS del tratto (colore). */
@@ -76,7 +79,7 @@ export function CumulativeChart({ lines, sessionStarts }: { lines: ChartLine[]; 
           {finals.map((f) => (
             <span key={f.label} className="legend-item">
               <span className={`legend-swatch ${f.className}`} aria-hidden="true" />
-              {f.label} <span className={`num ${f.last > 0 ? "pos" : f.last < 0 ? "neg" : ""}`}>{formatBb(f.last)}</span>
+              {f.tip ? <Term tip={f.tip}>{f.label}</Term> : f.label} <span className={`num ${f.last > 0 ? "pos" : f.last < 0 ? "neg" : ""}`}>{formatBb(f.last)}</span>
             </span>
           ))}
         </figcaption>
