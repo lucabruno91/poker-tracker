@@ -3,6 +3,7 @@ import { addInto, emptyCounters } from "../../stats/aggregate";
 import { buildResultSeries, sessionAtRange, summarizeRange, type ResultSeries } from "../../stats/series";
 import { CumulativeChart, type ChartRange } from "../CumulativeChart";
 import { HandList, PAGE_SIZE, Pager } from "../HandList";
+import { useDismiss } from "../useDismiss";
 import { Kpi, signClass, StatsGrid } from "../components";
 import { formatBb, formatDate, formatEuro, formatSigned } from "../format";
 import { href } from "../router";
@@ -116,6 +117,9 @@ export function SummaryScreen({ data }: { data: AppData }) {
 
   const allIn = useAllInEv(heroHands, hero);
   const [selection, setSelection] = useState<ChartRange | null>(null);
+  // Un clic fuori dal grafico e dal pannello, o Esc, toglie la selezione.
+  const selectionArea = useRef<HTMLDivElement>(null);
+  useDismiss(selectionArea, selection !== null, () => setSelection(null));
   // Cambiando i filtri cambia la serie: la selezione non avrebbe più senso.
   useEffect(() => setSelection(null), [sessions]);
 
@@ -166,30 +170,32 @@ export function SummaryScreen({ data }: { data: AppData }) {
             <h2 style={{ marginTop: 0 }}>
               Risultato cumulato (<Term tip={TERM_GLOSSARY.bb}>bb</Term>)
             </h2>
-            <CumulativeChart
-              lines={[
-                { label: "Totale", points: series.total, className: "line-total" },
-                { label: "Showdown", tip: TERM_GLOSSARY.showdown, points: series.showdown, className: "line-sd" },
-                { label: "Senza showdown", tip: TERM_GLOSSARY.showdown, points: series.nonShowdown, className: "line-nsd" },
-                ...(series.allInEv.length > 0
-                  ? [{ label: "All-in EV", tip: TERM_GLOSSARY.allInEv, points: series.allInEv, className: "line-ev" }]
-                  : []),
-              ]}
-              sessionStarts={series.sessionStarts}
-              selection={selection}
-              onSelect={setSelection}
-            />
-            <AllInSummary state={allIn} />
-            {selection && (
-              <SelectionPanel
-                series={series}
-                range={selection}
-                sessions={sessions}
-                handsById={handsById}
-                hero={hero}
-                onClear={() => setSelection(null)}
+            <div ref={selectionArea}>
+              <CumulativeChart
+                lines={[
+                  { label: "Totale", points: series.total, className: "line-total" },
+                  { label: "Showdown", tip: TERM_GLOSSARY.showdown, points: series.showdown, className: "line-sd" },
+                  { label: "Senza showdown", tip: TERM_GLOSSARY.showdown, points: series.nonShowdown, className: "line-nsd" },
+                  ...(series.allInEv.length > 0
+                    ? [{ label: "All-in EV", tip: TERM_GLOSSARY.allInEv, points: series.allInEv, className: "line-ev" }]
+                    : []),
+                ]}
+                sessionStarts={series.sessionStarts}
+                selection={selection}
+                onSelect={setSelection}
               />
-            )}
+              {selection && (
+                <SelectionPanel
+                  series={series}
+                  range={selection}
+                  sessions={sessions}
+                  handsById={handsById}
+                  hero={hero}
+                  onClear={() => setSelection(null)}
+                />
+              )}
+            </div>
+            <AllInSummary state={allIn} />
             <p className="small muted">
               Le linee verticali separano le sessioni. «Showdown»: mani in cui hai mostrato o buttato le carte allo
               showdown; «senza showdown»: piatti vinti o persi prima. Una linea senza showdown in discesa di solito vuol dire
