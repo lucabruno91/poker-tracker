@@ -7,7 +7,7 @@ import { applySeed, parseSeed } from "../src/db/seed";
 import { PokerDB } from "../src/db/schema";
 import { importTexts } from "../src/db/importFiles";
 import { buildSession } from "../src/stats/sessions";
-import { shownCards, summarizePlayers } from "../src/stats/players";
+import { shownCards, summarizePlayers, tableOpponents } from "../src/stats/players";
 import { emptyCounters } from "../src/stats/aggregate";
 import { formatBb, formatEuro, formatPct, formatAf } from "../src/ui/format";
 import { handsOf, oneHand } from "./helpers";
@@ -125,5 +125,16 @@ describe("riepilogo giocatori", () => {
     const h = oneHand("sidepot.txt");
     expect(shownCards(h, "Ab9//123")).toBe("7c 2d");
     expect(shownCards(h, "SitterX")).toBeNull();
+  });
+});
+
+describe("tableOpponents", () => {
+  it("avversari delle mani date, dal più presente, senza l'hero", () => {
+    const rows = tableOpponents(handsOf("headsup.txt").concat(handsOf("example.txt")), "HeroPlayer");
+    expect(rows[0]).toMatchObject({ name: "VillainHU" });
+    expect(rows[0]?.counters.hands).toBe(3);
+    expect(rows.some((r) => r.name === "HeroPlayer")).toBe(false);
+    // A parità di mani, ordine alfabetico.
+    expect(rows.slice(1).map((r) => r.name)).toEqual(["AlphaOne", "BetaTwo", "DeltaFive", "EpsSix", "GammaFour"]);
   });
 });

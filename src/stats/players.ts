@@ -59,3 +59,17 @@ export function shownCards(hand: Hand, name: string): string | null {
   const re = new RegExp(`^Seat \\d+: ${escaped} .*?(?:showed|mucked) \\[([^\\]]+)\\]`, "m");
   return re.exec(hand.raw)?.[1] ?? null;
 }
+
+export interface TableOpponent {
+  name: string;
+  /** Contatori nelle mani date (es. quelle di una sessione). */
+  counters: Counters;
+}
+
+/** Avversari presenti nelle mani date, dal più presente; esclude l'hero. Funzione pura. */
+export function tableOpponents(hands: Iterable<Hand>, hero: string | null): TableOpponent[] {
+  return [...countersFor(hands)]
+    .filter(([name]) => name !== hero)
+    .map(([name, counters]) => ({ name, counters }))
+    .sort((a, b) => b.counters.hands - a.counters.hands || a.name.localeCompare(b.name));
+}

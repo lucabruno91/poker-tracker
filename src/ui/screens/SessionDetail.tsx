@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { bbPer100 } from "../../stats/aggregate";
+import { bbPer100, displayStats } from "../../stats/aggregate";
+import { tableOpponents } from "../../stats/players";
 import { compareHandIds } from "../../stats/sessions";
 import { buildClaudeExport } from "../../export/claudeExport";
 import type { Hand, Session } from "../../types";
-import { Bb, Cards, CopyButton, Kpi, Money, signClass, StatsGrid } from "../components";
+import { Bb, Cards, CopyButton, Kpi, LabelBadge, Money, signClass, StatsGrid } from "../components";
+import { STAT_GLOSSARY } from "../glossary";
+import { Term } from "../Term";
 import { formatBb, formatDate, formatEuro, formatSigned } from "../format";
 import { href } from "../router";
 import { PositionTable } from "../PositionTable";
@@ -118,6 +121,11 @@ function SessionView({ data, session }: { data: AppData; session: Session }) {
       </section>
 
       <section className="card">
+        <h2 style={{ marginTop: 0 }}>Al tavolo</h2>
+        <TableOpponents hands={hands} hero={hero} players={players} profiles={data.profiles} />
+      </section>
+
+      <section className="card">
         <h2 style={{ marginTop: 0 }}>Mani con il piatto più grande</h2>
         <p className="small muted">Le 10 mani più grandi in cui hai messo soldi. Spunta quelle da esportare.</p>
         <HandTable hands={biggest} hero={hero} indexOf={indexOf} selected={selected} toggle={toggle} bb={bb} />
@@ -226,6 +234,54 @@ function HandTable({ hands, hero, indexOf, selected, toggle, bb }: HandTableProp
           })}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+/** Avversari della sessione con statistiche nella sessione ed etichetta (calcolata su tutte le mani). */
+function TableOpponents(props: {
+  hands: Hand[];
+  hero: string;
+  players: ReturnType<typeof usePlayers>;
+  profiles: AppData["profiles"];
+}) {
+  const rows = useMemo(() => tableOpponents(props.hands, props.hero), [props.hands, props.hero]);
+  if (rows.length === 0) return <p className="muted">Nessun avversario.</p>;
+  const pct = (v: number | null) => (v === null ? "—" : String(Math.round(v * 100)));
+  return (
+    <div className="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Giocatore</th>
+            <th className="num">Mani</th>
+            <th className="num">
+              <Term tip={STAT_GLOSSARY.vpip}>VPIP</Term>/<Term tip={STAT_GLOSSARY.pfr}>PFR</Term>
+            </th>
+            <th>Etichetta</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(({ name, counters }) => {
+            const d = displayStats(counters);
+            return (
+              <tr key={name}>
+                <td>
+                  <a href={href.opponent(name)}>{name}</a>
+                </td>
+                <td className="num">{counters.hands}</td>
+                <td className="num">
+                  {pct(d.vpip.value)}/{pct(d.pfr.value)}
+                </td>
+                <td>
+                  <LabelBadge info={labelFor(name, props.players, props.profiles)} />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <p className="small muted">VPIP/PFR nella sessione; l'etichetta tiene conto di tutte le mani in archivio.</p>
     </div>
   );
 }
