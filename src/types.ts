@@ -106,3 +106,23 @@ export interface PlayerProfile {
   claudeLabel?: Label;
   claudeNote?: string;
 }
+
+/** Tag di studio di una mano (chiave breve, usata anche nell'URL dei filtri). */
+export const HAND_TAGS = {
+  rivedere: "Da rivedere",
+  errore: "Errore",
+  cooler: "Cooler",
+  bluff: "Bluff",
+  buona: "Ben giocata",
+} as const;
+
+export type HandTag = keyof typeof HAND_TAGS;
+
+/** Segnalibri e nota di studio su una mano (tabella `handNotes`). */
+export interface HandNote {
+  handId: string;
+  tags: HandTag[];
+  note?: string;
+  /** ISO, ultima modifica. */
+  updatedAt: string;
+}

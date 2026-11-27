@@ -1,4 +1,4 @@
-import type { Hand, Position } from "../types";
+import { HAND_TAGS, type Hand, type HandNote, type HandTag, type Position } from "../types";
 import { POSITION_ORDER } from "./byPosition";
 import { handStats } from "./handStats";
 import { compareHandIds } from "./sessions";
@@ -14,6 +14,8 @@ export interface HandFilter {
   result?: HandResult;
   /** Testo libero: "AKs", "AKo", "AK" (entrambe), "QQ"; maiuscole/minuscole e ordine indifferenti. */
   cards?: string;
+  /** Solo le mani con questo tag, o con un tag/nota qualsiasi ("any"). */
+  tag?: HandTag | "any";
   sort: HandSort;
 }
 
@@ -54,7 +56,13 @@ export function matchesCards(q: CardsQuery, heroCards: string | null): boolean {
  * Mani dell'hero che rispettano il filtro, ordinate. Funzione pura.
  * Una ricerca per carte non valida non esclude nulla (la UI la segnala).
  */
-export function filterHands(hands: Iterable<Hand>, hero: string, f: HandFilter): Hand[] {
+export function filterHands(
+  hands: Iterable<Hand>,
+  hero: string,
+  f: HandFilter,
+  /** Segnalibri e note per hand ID (serve solo per il filtro `tag`). */
+  notes?: Map<string, HandNote>,
+): Hand[] {
   const cardsQ = f.cards ? parseCardsQuery(f.cards) : null;
   const out: Hand[] = [];
   for (const h of hands) {
@@ -69,6 +77,11 @@ export function filterHands(hands: Iterable<Hand>, hero: string, f: HandFilter):
     }
     if (f.kind === "vpip" && !handStats(h)[hero]?.vpip) continue;
     if (cardsQ && !matchesCards(cardsQ, h.heroName === hero ? h.heroCards : null)) continue;
+    if (f.tag) {
+      const n = notes?.get(h.id);
+      if (!n) continue;
+      if (f.tag === "any" ? n.tags.length === 0 && !n.note : !n.tags.includes(f.tag)) continue;
+    }
     out.push(h);
   }
   const bb = (h: Hand) => (h.net[hero] ?? 0) / h.bb;
@@ -97,6 +110,9 @@ export function parseHandQuery(query: string): HandFilter {
   else if (res === "perse") f.result = "lost";
   const cards = p.get("carte");
   if (cards) f.cards = cards;
+  const tag = p.get("tag");
+  if (tag === "qualsiasi") f.tag = "any";
+  else if (tag && Object.hasOwn(HAND_TAGS, tag)) f.tag = tag as HandTag;
   const sort = p.get("ordina");
   if (sort && (SORTS as string[]).includes(sort)) f.sort = sort as HandSort;
   return f;
@@ -109,6 +125,7 @@ export function handQuery(f: HandFilter, page = 1): string {
   if (f.kind) p.set("tipo", f.kind);
   if (f.result) p.set("esito", f.result === "won" ? "vinte" : "perse");
   if (f.cards) p.set("carte", f.cards);
+  if (f.tag) p.set("tag", f.tag === "any" ? "qualsiasi" : f.tag);
   if (f.sort !== "recent") p.set("ordina", f.sort);
   if (page > 1) p.set("pagina", String(page));
   return p.toString();

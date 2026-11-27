@@ -6,7 +6,7 @@ import { summarizePlayers, type PlayerSummary } from "../stats/players";
 import { emptyCounters } from "../stats/aggregate";
 import { filterSessions, isActive, localToday, parseFilter, type Filter } from "../stats/filters";
 import { effectiveLabel, type EffectiveLabel } from "../labels/autoLabel";
-import type { Hand, PlayerProfile, Session } from "../types";
+import type { Hand, HandNote, PlayerProfile, Session } from "../types";
 
 /** Unico database dell'app (i test ne creano di propri). */
 export const db = new PokerDB();
@@ -66,6 +66,12 @@ export function useFilter(data: AppData): FilterState {
     void db.settings.put({ key: FILTER_KEY, value: JSON.stringify(f) });
   };
   return { filter, setFilter, sessions, active: isActive(filter), today };
+}
+
+/** Segnalibri e note sulle mani, per hand ID (aggiornati dal vivo). */
+export function useHandNotes(): Map<string, HandNote> {
+  const notes = useLiveQuery(() => db.handNotes.toArray(), []);
+  return useMemo(() => new Map((notes ?? []).map((n) => [n.handId, n])), [notes]);
 }
 
 export function usePlayers(hands: Hand[]): Map<string, PlayerSummary> {

@@ -1,5 +1,5 @@
 import Dexie, { type Table } from "dexie";
-import type { Hand, PlayerProfile, Session } from "../types";
+import type { Hand, HandNote, PlayerProfile, Session } from "../types";
 
 export type SettingValue = string | number | boolean | null;
 
@@ -13,6 +13,7 @@ export class PokerDB extends Dexie {
   sessions!: Table<Session, string>;
   profiles!: Table<PlayerProfile, string>;
   settings!: Table<Setting, string>;
+  handNotes!: Table<HandNote, string>;
 
   constructor(name = "poker-tracker") {
     super(name);
@@ -21,6 +22,10 @@ export class PokerDB extends Dexie {
       sessions: "id, date",
       profiles: "name",
       settings: "key",
+    });
+    // v2: segnalibri e note sulle mani. Nessuna migrazione dei dati esistenti.
+    this.version(2).stores({
+      handNotes: "handId",
     });
   }
 }

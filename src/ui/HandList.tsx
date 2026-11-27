@@ -1,4 +1,5 @@
-import type { Hand } from "../types";
+import { HAND_TAGS, type Hand, type HandNote } from "../types";
+import { hasNote } from "../db/handNotes";
 import { Bb, Cards } from "./components";
 import { formatDate, formatEuro } from "./format";
 import { POSITION_GLOSSARY } from "./glossary";
@@ -11,7 +12,9 @@ export const PAGE_SIZE = 50;
  * Tabella di mani: riga cliccabile verso il replayer, link nella data per la
  * tastiera. `from` è la query della lista Mani (per mano precedente/successiva).
  */
-export function HandList({ hands, hero, from = null }: { hands: Hand[]; hero: string | null; from?: string | null }) {
+export function HandList({
+  hands, hero, from = null, notes,
+}: { hands: Hand[]; hero: string | null; from?: string | null; notes?: Map<string, HandNote> }) {
   return (
     <div className="table-wrap">
       <table className="hands-table">
@@ -36,6 +39,7 @@ export function HandList({ hands, hero, from = null }: { hands: Hand[]; hero: st
                   <a href={link} onClick={(e) => e.stopPropagation()}>
                     {formatDate(h.playedAt)} {h.playedAt.slice(11, 16)}
                   </a>
+                  <NoteMark note={notes?.get(h.id)} />
                 </td>
                 <td>{h.table}</td>
                 <td>{pos ? <Term tip={POSITION_GLOSSARY[pos]}>{pos}</Term> : "—"}</td>
@@ -55,6 +59,17 @@ export function HandList({ hands, hero, from = null }: { hands: Hand[]; hero: st
         </tbody>
       </table>
     </div>
+  );
+}
+
+/** Segno sulle mani con tag o nota (descrizione per i lettori di schermo). */
+function NoteMark({ note }: { note: HandNote | undefined }) {
+  if (!note || !hasNote(note)) return null;
+  const text = [note.tags.map((t) => HAND_TAGS[t]).join(", "), note.note].filter(Boolean).join(" — ");
+  return (
+    <span className="note-mark" title={text} role="img" aria-label={`Annotata: ${text}`}>
+      ✎
+    </span>
   );
 }
 

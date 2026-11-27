@@ -473,3 +473,8 @@ input[type="date"] {
 /* Pulsante disattivato ma focalizzabile (aria-disabled), per mostrare il tooltip. */
 button.is-disabled { opacity: 0.5; cursor: not-allowed; }
 button.is-disabled:hover { border-color: #3a444e; }
+
+/* --- Tag di studio delle mani */
+.tag-toggle { border-radius: 999px; }
+.tag-toggle.on { background: var(--gold); color: var(--ink); border-color: var(--gold); font-weight: 600; }
+.note-mark { margin-left: 0.4rem; color: var(--gold); cursor: help; }

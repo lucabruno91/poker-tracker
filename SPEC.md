@@ -353,7 +353,7 @@ Le carte degli avversari note dal riepilogo restano coperte fino allo showdown, 
 
 ## 7. Persistenza
 
-Database IndexedDB tramite Dexie, nome `poker-tracker`, versione 1:
+Database IndexedDB tramite Dexie, nome `poker-tracker`, versione 2:
 
 | Tabella | Chiave | Contenuto |
 |---|---|---|
@@ -361,9 +361,10 @@ Database IndexedDB tramite Dexie, nome `poker-tracker`, versione 1:
 | `sessions` | `id` (`table + data`) | oggetto `Session` |
 | `profiles` | `name` | etichetta e nota dell'utente, etichetta e nota di Claude |
 | `settings` | `key` | `heroName`, preferenze di visualizzazione |
+| `handNotes` | `handId` | segnalibri di studio (tag: «Da rivedere», «Errore», «Cooler», «Bluff», «Ben giocata») e nota libera di una mano; aggiunta nella versione 2 del database, senza migrazione dei dati esistenti |
 
 - **Import idempotente**: reimportare lo stesso file non cambia nulla (dedup per hand ID, sessioni ricalcolate).
-- **Backup**: esporta un JSON `{ version, exportedAt, hands, sessions, profiles, settings }`; l'import del backup sostituisce o unisce (chiedere all'utente).
+- **Backup**: esporta un JSON `{ version, exportedAt, hands, sessions, profiles, settings, handNotes }` (versione 2; i backup versione 1, senza `handNotes`, si importano ancora; nell'unione vince la nota più recente); l'import del backup sostituisce o unisce (chiedere all'utente).
 - Avviso nell'interfaccia: i dati restano solo in questo browser; fare il backup periodicamente.
 - Se lo spazio lo richiedesse in futuro, `raw` si può comprimere; non serve per ora (una mano occupa circa 1–2 KB).
 
@@ -396,7 +397,8 @@ Schermate:
    - Ordinamento: più recenti, piatto più grande (in bb), perdite o vincite maggiori.
    - Paginazione da 50.
    - I filtri restano nell'URL. Cliccando una riga si apre la mano e, da lì, «mano precedente / successiva» segue la stessa lista.
-6. **Mano**: replay grafico passo per passo (6.12) su un tavolo ovale con l'hero in basso. Si va avanti e indietro con ◀ ▶ o con le frecce della tastiera (Home/End per inizio e fine). Sotto, i giocatori con i risultati e il testo originale con le azioni evidenziate per strada, più il pulsante «Copia».
+6. **Mano**: sotto il replayer, i tag di studio (pulsanti attiva/disattiva, salvati subito) e una nota libera. Nella lista Mani le mani annotate hanno un segno ✎ e c'è il filtro «Tag» (un tag preciso o «con un tag o una nota»).
+   Replay grafico passo per passo (6.12) su un tavolo ovale con l'hero in basso. Si va avanti e indietro con ◀ ▶ o con le frecce della tastiera (Home/End per inizio e fine). Sotto, i giocatori con i risultati e il testo originale con le azioni evidenziate per strada, più il pulsante «Copia».
 7. **Impostazioni** — nome dell'hero, backup ed eliminazione dei dati.
 
 Accessibilità: tutti i controlli raggiungibili da tastiera, `aria-label` sugli elementi solo icona, contrasto sufficiente sul tema scuro.

@@ -4,12 +4,12 @@ import {
   type HandFilter, type HandKind, type HandResult, type HandSort,
 } from "../../stats/handFilters";
 import { POSITION_ORDER } from "../../stats/byPosition";
-import type { Hand, Position } from "../../types";
+import { HAND_TAGS, type Hand, type HandTag, type Position } from "../../types";
 import { signClass } from "../components";
 import { HandList, PAGE_SIZE, Pager } from "../HandList";
 import { formatBb } from "../format";
 import { href, replaceQuery } from "../router";
-import { useFilter, type AppData } from "../data";
+import { useFilter, useHandNotes, type AppData } from "../data";
 import { FilterBar } from "../FilterBar";
 
 /** Mani dell'hero nelle sessioni che rispettano periodo e stake. */
@@ -26,7 +26,8 @@ export function HandsScreen({ data, query }: { data: AppData; query: string }) {
   const all = useHeroHands(data);
   const hero = data.hero;
   const f = useMemo(() => parseHandQuery(query), [query]);
-  const list = useMemo(() => (hero ? filterHands(all, hero, f) : []), [all, hero, f]);
+  const notes = useHandNotes();
+  const list = useMemo(() => (hero ? filterHands(all, hero, f, notes) : []), [all, hero, f, notes]);
 
   const pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
   const page = Math.min(pageOf(query), pages);
@@ -107,6 +108,17 @@ export function HandsScreen({ data, query }: { data: AppData; query: string }) {
             }}
           />
 
+          <label htmlFor="hf-tag">Tag</label>
+          <select id="hf-tag" value={f.tag ?? ""} onChange={(e) => update({ tag: (e.target.value || undefined) as HandFilter["tag"] })}>
+            <option value="">Tutte</option>
+            <option value="any">Con un tag o una nota</option>
+            {(Object.keys(HAND_TAGS) as HandTag[]).map((t) => (
+              <option key={t} value={t}>
+                {HAND_TAGS[t]}
+              </option>
+            ))}
+          </select>
+
           <label htmlFor="hf-sort">Ordina</label>
           <select id="hf-sort" value={f.sort} onChange={(e) => update({ sort: e.target.value as HandSort })}>
             <option value="recent">Più recenti</option>
@@ -134,7 +146,7 @@ export function HandsScreen({ data, query }: { data: AppData; query: string }) {
         <p className="muted">Nessuna mano corrisponde ai filtri.</p>
       ) : (
         <div className="card">
-          <HandList hands={shown} hero={hero} from={listQuery} />
+          <HandList hands={shown} hero={hero} from={listQuery} notes={notes} />
         </div>
       )}
 
