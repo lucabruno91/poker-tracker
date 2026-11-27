@@ -13,6 +13,7 @@ import { splitHands } from "../src/parser/splitHands";
 import { handStats } from "../src/stats/handStats";
 import { addInto, emptyCounters } from "../src/stats/aggregate";
 import { buildSessions } from "../src/stats/sessions";
+import { groupEvenings } from "../src/stats/evenings";
 import { heroByPosition } from "../src/stats/byPosition";
 import { heroByStartingHand } from "../src/stats/startingHands";
 import { buildResultSeries } from "../src/stats/series";
@@ -99,6 +100,14 @@ describe.skipIf(!enabled)("valori di riferimento (fixture reali)", () => {
     expect(series.total).toHaveLength(ref.totals.hands);
     expect(series.total.at(-1)).toBeCloseTo(ref.totals.netBb, 9);
     series.total.forEach((t, i) => expect(t).toBeCloseTo((series.showdown[i] ?? 0) + (series.nonShowdown[i] ?? 0), 9));
+  });
+
+  it("serate: i totali sono quelli delle sessioni", () => {
+    const evenings = groupEvenings(sessions, new Map(hands.map((h) => [h.id, h])));
+    expect(evenings.flatMap((e) => e.sessionIds).sort()).toEqual(sessions.map((s) => s.id).sort());
+    expect(evenings.reduce((a, e) => a + e.net, 0)).toBe(ref.totals.net);
+    expect(evenings.reduce((a, e) => a + e.rebuys, 0)).toBe(ref.totals.rebuys);
+    expect(evenings.reduce((a, e) => a + e.hands, 0)).toBe(ref.totals.hands);
   });
 
   for (const expected of ref.sessions) {

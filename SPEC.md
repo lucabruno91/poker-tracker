@@ -207,7 +207,12 @@ Verifica di coerenza per ogni mano: la somma dei `net` di tutti i giocatori deve
 
 ### 6.3 Sessioni e ricariche
 
-- **Sessione** = insieme delle mani dello stesso tavolo nello stesso giorno, ordinate per hand ID. (Multi-tavolo: ogni tavolo è una sessione separata; il raggruppamento per «serata» è una funzione futura.)
+- **Sessione** = insieme delle mani dello stesso tavolo nello stesso giorno, ordinate per hand ID. Con il multi-tavolo ogni tavolo è una sessione separata.
+- **Serata** = gruppo di sessioni giocate insieme:
+  - le sessioni si ordinano per inizio (prima mano);
+  - una sessione entra nella serata corrente se inizia entro **60 minuti** dalla fine della serata, cioè dall'ultima mano finora; altrimenti apre una serata nuova;
+  - così rientrano i tavoli sovrapposti e le pause brevi, anche a cavallo della mezzanotte;
+  - la data della serata è quella di inizio, e i suoi totali (mani, netto, ricariche, bb) sono la somma delle sessioni.
 - Per l'hero, tra una mano e la successiva: `atteso = stack[i] + net[i]`. Se `stack[i+1] − atteso > 0` è una **ricarica** di quell'importo (tolleranza 0). Se è negativo, segnalare un'incoerenza.
 - `heroEnd = stack[ultima] + net[ultima]`.
 - Controllo: `heroEnd − heroStart − rebuys = Σ net` della sessione.
@@ -429,7 +434,8 @@ Per cinque avversari, `fixtures/reference.json` contiene `hands`, `vpip`, `pfr`,
 3. **M3 — Riepilogo e sessioni.** Grafico, statistiche dell'hero, elenco e dettaglio sessioni, mani più grandi.
 4. **M4 — Avversari.** Elenco, dettaglio, etichette e note, etichetta automatica, import delle etichette di Claude, dati iniziali della sezione 10.
 5. **M5 — Esportazione per Claude** e visualizzazione della singola mano.
-6. **Dopo:** statistiche per posizione, filtri per periodo e per stake, sessioni multi-tavolo raggruppate per serata, tavoli Zoom.
+6. **Fatto dopo M5:** statistiche per posizione (6.7), risultati per mano iniziale (6.8), linee showdown (6.9), filtri per periodo e stake (6.10), serate multi-tavolo (6.3).
+7. **Dopo:** linea «all-in EV», tavoli Zoom.
 
 Ogni milestone si chiude con: test verdi, build senza errori di TypeScript, prova manuale con le fixture.
 
