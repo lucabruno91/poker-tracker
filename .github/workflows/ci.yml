@@ -1,0 +1,33 @@
+name: CI
+
+# Controlli su ogni pull request verso main: tipi, test e build.
+# Nessun deploy: quello è in deploy.yml, al push su main.
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck, test e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      # Le hand history reali (fixtures/) non sono nel repository:
+      # i test di riferimento vengono saltati e girano solo in locale.
+      - run: npm test
+      - run: npm run build
