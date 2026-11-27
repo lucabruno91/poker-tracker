@@ -421,6 +421,28 @@ MANI SELEZIONATE
 
 Le mani selezionate restano nel formato originale di PokerStars, così possono essere caricate anche su GTO Wizard.
 
+**Altri gruppi di mani.** Lo stesso pulsante «Esporta per Claude» c'è anche:
+- nel pannello della selezione del grafico (Riepilogo);
+- nella lista Mani, per le mani filtrate;
+- nella schermata Mano, per la singola mano.
+
+Testo:
+```
+SELEZIONE DEL GRAFICO: MANI 115–190 — dal 24/11/2026 al 25/11/2026 — 76 mani
+Risultato hero: −34,0 bb (−€0,68)
+Hero: VPIP … · PFR … · …
+Avversari principali: …
+
+NOTE DI STUDIO
+Mano #262817521703 (Botolphia VII, 25/11/2026 12:48): [Cooler] nota
+
+MANI
+<testo originale delle mani, separate da due righe vuote>
+```
+- Risultato, statistiche e avversari sono calcolati sulle mani del gruppo.
+- Si esportano al massimo **50 mani**, nell'ordine del gruppo, con un avviso se sono di più.
+- Le note di studio stanno in una sezione a parte, prima delle mani, così il loro testo resta nel formato originale. La sezione compare anche nell'export di sessione.
+
 Anche l'operazione inversa: **importare le etichette e le note di Claude** incollando un JSON `{ "nome": { "label": "...", "note": "..." } }`, che va in `claudeLabel` / `claudeNote` senza toccare quelle dell'utente.
 
 ## 10. Dati iniziali

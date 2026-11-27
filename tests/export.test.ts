@@ -1,6 +1,7 @@
 import "fake-indexeddb/auto";
 import { describe, expect, it } from "vitest";
-import { buildClaudeExport, heroStatsLine } from "../src/export/claudeExport";
+import { buildClaudeExport, buildGroupExport, heroStatsLine } from "../src/export/claudeExport";
+import { describeHandFilter } from "../src/stats/handFilters";
 import { parseClaudeLabels } from "../src/labels/claudeLabels";
 import { applyClaudeLabels } from "../src/db/profiles";
 import { applySeed, parseSeed } from "../src/db/seed";
@@ -136,5 +137,62 @@ describe("tableOpponents", () => {
     expect(rows.some((r) => r.name === "HeroPlayer")).toBe(false);
     // A parità di mani, ordine alfabetico.
     expect(rows.slice(1).map((r) => r.name)).toEqual(["AlphaOne", "BetaTwo", "DeltaFive", "EpsSix", "GammaFour"]);
+  });
+});
+
+describe("export di un gruppo di mani", () => {
+  const hu = handsOf("headsup.txt"); // 24/11 (−200, +2) e 26/11 (+1)
+  const labelOf = (n: string) => (n === "VillainHU" ? ("Fish" as const) : null);
+
+  it("intestazione con titolo, date e numero di mani; risultato e statistiche sul gruppo", () => {
+    const { text, exported, total } = buildGroupExport({ title: "Selezione del grafico: mani 1–3", hands: hu, hero: "HeroPlayer", labelOf });
+    const lines = text.split("\n");
+    expect(lines[0]).toBe("SELEZIONE DEL GRAFICO: MANI 1–3 — dal 24/11/2026 al 26/11/2026 — 3 mani");
+    expect(lines[1]).toBe("Risultato hero: −98,5 bb (−€1,97)");
+    expect(lines[2]).toMatch(/^Hero: VPIP 67% · PFR 67% /);
+    expect(lines[3]).toBe("Avversari principali: VillainHU 3 mani 33/33 [Fish]");
+    expect(text).toContain(`MANI\n${hu[0]?.raw}\n\n\n${hu[1]?.raw}`);
+    expect({ exported, total }).toEqual({ exported: 3, total: 3 });
+  });
+
+  it("una sola data e una sola mano", () => {
+    const one = buildGroupExport({ title: "Mano #262800000012", hands: [hu[2]!], hero: "HeroPlayer", labelOf });
+    expect(one.text.split("\n")[0]).toBe("MANO #262800000012 — 26/11/2026 — 1 mano");
+  });
+
+  it("limite di mani con avviso; risultato su tutto il gruppo", () => {
+    const r = buildGroupExport({ title: "Lista", hands: hu, hero: "HeroPlayer", labelOf, limit: 2 });
+    expect(r).toMatchObject({ exported: 2, total: 3 });
+    expect(r.text).toContain("(Esportate le prime 2 mani di 3: risultato e statistiche valgono per tutte.)");
+    expect(r.text).toContain("Risultato hero: −98,5 bb");
+    expect(r.text).not.toContain(hu[2]!.raw);
+  });
+
+  it("note di studio in una sezione separata, prima delle mani, solo per quelle esportate", () => {
+    const notes = new Map([
+      ["262800000010", { handId: "262800000010", tags: ["cooler" as const], note: "QQ contro AK", updatedAt: "x" }],
+      ["262800000012", { handId: "262800000012", tags: ["errore" as const], updatedAt: "x" }],
+    ]);
+    const r = buildGroupExport({ title: "Lista", hands: hu, hero: "HeroPlayer", labelOf, notes, limit: 2 });
+    expect(r.text).toContain("NOTE DI STUDIO\nMano #262800000010 (Duotable II, 24/11/2026 21:00): [Cooler] QQ contro AK");
+    expect(r.text).not.toContain("262800000012 (");
+    expect(r.text.indexOf("NOTE DI STUDIO")).toBeLessThan(r.text.indexOf("\nMANI\n"));
+    // Il testo delle mani resta nel formato originale.
+    expect(r.text).toContain(hu[0]!.raw);
+  });
+
+  it("l'export di sessione include le note delle mani selezionate", () => {
+    const session = buildSession(hu.slice(0, 2), "HeroPlayer");
+    const notes = new Map([["262800000011", { handId: "262800000011", tags: [], note: "steal ok", updatedAt: "x" }]]);
+    const text = buildClaudeExport({ session, hands: hu.slice(0, 2), hero: "HeroPlayer", selectedIds: ["262800000011"], labelOf, notes });
+    expect(text).toContain("NOTE DI STUDIO\nMano #262800000011 (Duotable II, 24/11/2026 21:01): steal ok\n\nMANI SELEZIONATE");
+  });
+
+  it("descrizione dei filtri della lista", () => {
+    expect(describeHandFilter({ sort: "recent" })).toBe("");
+    expect(describeHandFilter({ position: "BB", result: "lost", cards: "AK", tag: "any", sort: "worst" })).toBe(
+      "BB, perse, carte AK, con tag o nota, ordinate per perdite",
+    );
+    expect(describeHandFilter({ kind: "allin", tag: "errore", sort: "recent" })).toBe("con un all-in, tag «Errore»");
   });
 });

@@ -9,11 +9,13 @@ import { Kpi, signClass, StatsGrid } from "../components";
 import { formatBb, formatDate, formatEuro, formatSigned } from "../format";
 import { href, replaceQuery } from "../router";
 import { filterSignature, parseSelection, selectionQuery } from "../selectionUrl";
-import { db, useFilter, type AppData } from "../data";
+import { db, labelFor, useFilter, useHandNotes, usePlayers, type AppData } from "../data";
+import { ClaudeExportBox } from "../ClaudeExportBox";
+import { buildGroupExport } from "../../export/claudeExport";
 import { FilterBar } from "../FilterBar";
 import { PositionTable } from "../PositionTable";
 import { StartingHandsGrid } from "../StartingHandsGrid";
-import type { Hand, Session } from "../../types";
+import type { Hand, HandNote, Label, Session } from "../../types";
 import { useAllInEv, type AllInEvState } from "../useAllInEv";
 import { TERM_GLOSSARY } from "../glossary";
 import { Term } from "../Term";
@@ -65,8 +67,10 @@ function SelectionPanel(props: {
   handsById: Map<string, Hand>;
   hero: string | null;
   onClear: () => void;
+  labelOf: (name: string) => Label | null;
+  notes: Map<string, HandNote>;
 }) {
-  const { series, range, sessions, handsById, hero, onClear } = props;
+  const { series, range, sessions, handsById, hero, onClear, labelOf, notes } = props;
   const [page, setPage] = useState(1);
   const sum = useMemo(() => summarizeRange(series, range[0], range[1]), [series, range]);
   const hands = useMemo(
@@ -100,8 +104,24 @@ function SelectionPanel(props: {
           Azzera selezione
         </button>
       </div>
-      <HandList hands={shown} hero={hero} />
+      <HandList hands={shown} hero={hero} notes={notes} />
       <Pager page={page} pages={pages} onPage={setPage} />
+      {hero && (
+        <ClaudeExportBox
+          resetKey={`${sum.from}-${sum.to}`}
+          build={() =>
+            buildGroupExport({
+              title: session
+                ? `Sessione ${session.table} (selezione del grafico)`
+                : `Selezione del grafico: mani ${sum.from + 1}–${sum.to + 1}`,
+              hands,
+              hero,
+              labelOf,
+              notes,
+            })
+          }
+        />
+      )}
     </div>
   );
 }
@@ -129,6 +149,8 @@ export function SummaryScreen({ data, query = "" }: { data: AppData; query?: str
   }, [sessions, handsById, hero]);
 
   const allIn = useAllInEv(heroHands, hero);
+  const players = usePlayers(data.hands);
+  const notes = useHandNotes();
 
   // Linee nascoste del grafico, salvate tra le visite (impostazione `chartHidden`).
   const savedHidden = useLiveQuery(async () => (await db.settings.get(CHART_HIDDEN_KEY))?.value ?? null, []);
@@ -219,6 +241,8 @@ export function SummaryScreen({ data, query = "" }: { data: AppData; query?: str
                   handsById={handsById}
                   hero={hero}
                   onClear={() => setSelection(null)}
+                  labelOf={(name) => labelFor(name, players, data.profiles).label}
+                  notes={notes}
                 />
               )}
             </div>
