@@ -276,6 +276,10 @@ Sotto le 45 mani l'etichetta mostra un indicatore di campione piccolo.
 
 Precedenza: etichetta dell'utente > etichetta di Claude > etichetta automatica.
 
+### 6.7 Statistiche per posizione
+
+Per ogni mano dell'hero si prende la sua posizione (6.4) e si sommano i contatori della mano (6.5) nella riga di quella posizione. Il risultato in bb si somma mano per mano (`net / bb` di ciascuna mano). Ordine delle righe: UTG, HJ, CO, BTN, SB, BB; le posizioni senza mani non compaiono. La somma delle righe è uguale ai totali dell'hero.
+
 ## 7. Persistenza
 
 Database IndexedDB tramite Dexie, nome `poker-tracker`, versione 1:
