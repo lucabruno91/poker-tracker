@@ -298,6 +298,12 @@ Il grafico cumulato (in bb, mano per mano, sessioni nell'ordine dell'elenco) ha 
 
 A ogni mano: totale = showdown + senza showdown.
 
+**Selezione nel grafico.**
+- Un tratto è un intervallo di indici della serie (mani dell'hero nell'ordine del grafico), estremi inclusi.
+- I suoi bb sono la differenza dei cumulati, cioè il valore all'ultimo indice meno quello prima del primo, separatamente per totale, showdown e senza showdown.
+- Con un clic, cioè uno spostamento del puntatore di al massimo 5 px, si seleziona la sessione che contiene la mano; le sessioni senza mani dell'hero si ignorano.
+- La somma dei tratti delle sessioni è uguale al totale.
+
 ### 6.10 Filtri per periodo e stake
 
 Il filtro si applica alle **sessioni**: una sessione è un solo tavolo, un solo giorno e un solo stake, così ricariche e stack restano coerenti. Tutto ciò che il Riepilogo e l'elenco delle sessioni calcolano deriva dalle sessioni filtrate.
@@ -376,7 +382,10 @@ Colori delle etichette: Regular forte `#B5534F`, Regular medio `#C98A3A`, Regula
 Schermate:
 
 1. **Import** — area di trascinamento file + pulsante «Scegli file». Dopo l'import: mani lette, nuove, duplicate, scartate (con motivo).
-2. **Riepilogo** — sessioni, mani, risultato (bb ed €), bb/100; grafico del risultato cumulato in bb mano per mano, con linee verticali tra le sessioni; riquadro «Le tue statistiche» con valori fuori riferimento evidenziati.
+2. **Riepilogo**:
+   - sessioni, mani, risultato (bb ed €), bb/100;
+   - grafico del risultato cumulato in bb mano per mano, con linee verticali tra le sessioni. Trascinando sul grafico si seleziona un tratto, cliccando una sessione; si può fare anche da tastiera, con i campi «dalla mano / alla mano» e «sessione precedente / successiva». Sotto compaiono il riepilogo del tratto e l'elenco delle sue mani, che si aprono nel replayer, e la selezione si azzera cambiando i filtri;
+   - riquadro «Le tue statistiche» con i valori fuori riferimento evidenziati.
 3. **Sessioni** — elenco dalla più recente: data, tavolo, mani, risultato, ricariche. Dettaglio sessione: statistiche dell'hero nella sessione, **le 10 mani con il piatto più grande in cui l'hero ha messo soldi** (posizione, carte, risultato), nota libera, selezione delle mani da esportare.
 4. **Avversari** — ricerca per nome o etichetta, ordinamento per mani / VPIP / ultima sessione; riga con nome, mani, VPIP/PFR, etichetta. Dettaglio: tutte le statistiche, sessioni in cui è comparso, mani mostrate allo showdown, nota di Claude, etichetta e nota modificabili.
 5. **Mani**: elenco di tutte le mani dell'hero.

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildResultSeries } from "../src/stats/series";
+import { buildResultSeries, sessionAtRange, sessionRangeAt, summarizeRange } from "../src/stats/series";
+import { indexAt } from "../src/ui/CumulativeChart";
 import { buildSessions } from "../src/stats/sessions";
 import { handsOf } from "./helpers";
 
@@ -30,6 +31,57 @@ describe("buildResultSeries", () => {
   });
 
   it("senza hero le serie sono vuote", () => {
-    expect(buildResultSeries(sessions, byId, null)).toEqual({ total: [], showdown: [], nonShowdown: [], sessionStarts: [], allInEv: [] });
+    expect(buildResultSeries(sessions, byId, null)).toEqual({ total: [], showdown: [], nonShowdown: [], sessionStarts: [], sessionIds: [], handIds: [], allInEv: [] });
+  });
+});
+
+describe("selezione nel grafico", () => {
+  // Sessioni per primo hand ID: Testtable (indici 0–1), Duotable 24/11 (2–3), Duotable 26/11 (4), Quattro (5).
+  it("gli ID delle mani sono allineati al totale", () => {
+    expect(s.handIds).toHaveLength(s.total.length);
+    expect(s.handIds).toEqual(["262800000001", "262800000002", "262800000010", "262800000011", "262800000012", "262800000020"]);
+    expect(s.sessionIds).toEqual(sessions.map((x) => x.id));
+  });
+
+  it("sessionRangeAt: primo e ultimo indice della sessione", () => {
+    const at = (i: number) => sessionRangeAt(s.sessionStarts, s.total.length, i);
+    expect(at(0)).toEqual([0, 1]);
+    expect(at(1)).toEqual([0, 1]);
+    expect(at(2)).toEqual([2, 3]);
+    expect(at(4)).toEqual([4, 4]);
+    expect(at(5)).toEqual([5, 5]);
+    // Sessioni senza mani dell'hero: inizi ripetuti.
+    expect(sessionRangeAt([0, 3, 3, 5], 7, 3)).toEqual([3, 4]);
+    expect(sessionRangeAt([0, 3, 3, 5], 7, 6)).toEqual([5, 6]);
+  });
+
+  it("sessionAtRange riconosce solo intervalli che coincidono con una sessione", () => {
+    expect(sessionAtRange(s, 2, 3)).toBe(sessions[1]?.id);
+    expect(sessionAtRange(s, 2, 2)).toBeNull();
+    expect(sessionAtRange(s, 1, 2)).toBeNull();
+  });
+
+  it("summarizeRange: differenza dei cumulati, estremi inclusi o invertiti", () => {
+    const all = summarizeRange(s, 0, s.total.length - 1);
+    expect(all.count).toBe(6);
+    expect(all.totalBb).toBeCloseTo(s.total.at(-1) ?? 0, 10);
+    const one = summarizeRange(s, 2, 2);
+    expect(one).toMatchObject({ from: 2, to: 2, count: 1, handIds: ["262800000010"] });
+    expect(one.totalBb).toBeCloseTo(-100, 10);
+    expect(one.showdownBb).toBeCloseTo(-100, 10);
+    expect(summarizeRange(s, 3, 1)).toEqual(summarizeRange(s, 1, 3));
+    const r = summarizeRange(s, 1, 4);
+    expect(r.totalBb).toBeCloseTo(r.showdownBb + r.nonShowdownBb, 10);
+    // Intervalli consecutivi si sommano.
+    expect(summarizeRange(s, 0, 1).totalBb + summarizeRange(s, 2, 5).totalBb).toBeCloseTo(all.totalBb, 10);
+  });
+
+  it("indexAt converte la posizione del puntatore nell'indice della mano", () => {
+    // viewBox largo 800 con margine sinistro 56 e destro 16: area dati 728.
+    expect(indexAt(0, 800, 10)).toBe(0); // nel margine: prima mano
+    expect(indexAt(56, 800, 10)).toBe(0);
+    expect(indexAt(56 + 728 / 2, 800, 10)).toBe(5);
+    expect(indexAt(799, 800, 10)).toBe(9); // nel margine destro: ultima mano
+    expect(indexAt(28 + 364 / 2, 400, 10)).toBe(5); // SVG mostrato a metà larghezza
   });
 });

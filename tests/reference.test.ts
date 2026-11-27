@@ -19,7 +19,7 @@ import { classifyAllIn, expectedNet, spotEquity } from "../src/stats/allInEv";
 import { groupEvenings } from "../src/stats/evenings";
 import { heroByPosition } from "../src/stats/byPosition";
 import { heroByStartingHand } from "../src/stats/startingHands";
-import { buildResultSeries } from "../src/stats/series";
+import { buildResultSeries, sessionRangeAt, summarizeRange } from "../src/stats/series";
 import type { Counters, Hand } from "../src/types";
 
 interface Reference {
@@ -139,6 +139,18 @@ describe.skipIf(!enabled)("valori di riferimento (fixture reali)", () => {
 
   it("replay: invarianti su tutte le mani", () => {
     for (const h of hands) checkReplay(h, buildReplay(h));
+  });
+
+  it("selezione nel grafico: la somma delle sessioni dà il totale", () => {
+    const series = buildResultSeries(sessions, new Map(hands.map((h) => [h.id, h])), ref.hero);
+    const n = series.total.length;
+    const starts = [...new Set(series.sessionStarts.filter((x) => x < n))];
+    const sum = starts.reduce((a, st) => {
+      const [from, to] = sessionRangeAt(series.sessionStarts, n, st);
+      return a + summarizeRange(series, from, to).totalBb;
+    }, 0);
+    expect(sum).toBeCloseTo(ref.totals.netBb, 9);
+    expect(starts).toHaveLength(ref.sessions.length);
   });
 
   for (const expected of ref.sessions) {
