@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  filterHands, handQuery, pageOf, parseCardsQuery, parseHandQuery,
+  describeHandFilter, filterHands, handQuery, pageOf, parseCardsQuery, parseHandQuery,
   type HandFilter, type HandKind, type HandResult, type HandSort,
 } from "../../stats/handFilters";
 import { POSITION_ORDER } from "../../stats/byPosition";
@@ -9,7 +9,9 @@ import { signClass } from "../components";
 import { HandList, PAGE_SIZE, Pager } from "../HandList";
 import { formatBb } from "../format";
 import { href, replaceQuery } from "../router";
-import { useFilter, useHandNotes, type AppData } from "../data";
+import { labelFor, useFilter, useHandNotes, usePlayers, type AppData } from "../data";
+import { ClaudeExportBox } from "../ClaudeExportBox";
+import { buildGroupExport } from "../../export/claudeExport";
 import { FilterBar } from "../FilterBar";
 
 /** Mani dell'hero nelle sessioni che rispettano periodo e stake. */
@@ -27,6 +29,7 @@ export function HandsScreen({ data, query }: { data: AppData; query: string }) {
   const hero = data.hero;
   const f = useMemo(() => parseHandQuery(query), [query]);
   const notes = useHandNotes();
+  const players = usePlayers(data.hands);
   const list = useMemo(() => (hero ? filterHands(all, hero, f, notes) : []), [all, hero, f, notes]);
 
   const pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
@@ -147,6 +150,20 @@ export function HandsScreen({ data, query }: { data: AppData; query: string }) {
       ) : (
         <div className="card">
           <HandList hands={shown} hero={hero} from={listQuery} notes={notes} />
+          {hero && (
+            <ClaudeExportBox
+              resetKey={`${listQuery}|${list.length}`}
+              build={() =>
+                buildGroupExport({
+                  title: `Lista delle mani${describeHandFilter(f) ? ` (${describeHandFilter(f)})` : ""}`,
+                  hands: list,
+                  hero,
+                  labelOf: (name) => labelFor(name, players, data.profiles).label,
+                  notes,
+                })
+              }
+            />
+          )}
         </div>
       )}
 

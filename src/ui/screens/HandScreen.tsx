@@ -1,11 +1,13 @@
 import { useMemo } from "react";
 import { sessionIdOf } from "../../stats/sessions";
-import type { Hand } from "../../types";
+import type { Hand, HandNote, Label } from "../../types";
 import { Bb, Cards, CopyButton, Money } from "../components";
 import { formatDate, formatEuro } from "../format";
 import { href } from "../router";
 import { HandReplayer } from "../HandReplayer";
-import { useHandNotes, type AppData } from "../data";
+import { labelFor, useHandNotes, usePlayers, type AppData } from "../data";
+import { ClaudeExportBox } from "../ClaudeExportBox";
+import { buildGroupExport } from "../../export/claudeExport";
 import { HandNotesEditor } from "../HandNotesEditor";
 import { filterHands, parseHandQuery } from "../../stats/handFilters";
 import { useHeroHands } from "./HandsScreen";
@@ -50,6 +52,8 @@ function ListNav({ data, id, from }: { data: AppData; id: string; from: string }
 }
 
 export function HandScreen({ data, id, from }: { data: AppData; id: string; from: string | null }) {
+  const players = usePlayers(data.hands);
+  const notes = useHandNotes();
   const hand = data.handsById.get(id);
   if (!hand) {
     return data.loading ? null : (
@@ -62,12 +66,14 @@ export function HandScreen({ data, id, from }: { data: AppData; id: string; from
   return (
     <>
       {from !== null && <ListNav data={data} id={id} from={from} />}
-      <HandView hand={hand} hero={data.hero} />
+      <HandView hand={hand} hero={data.hero} labelOf={(name) => labelFor(name, players, data.profiles).label} notes={notes} />
     </>
   );
 }
 
-function HandView({ hand, hero }: { hand: Hand; hero: string | null }) {
+function HandView({
+  hand, hero, labelOf, notes,
+}: { hand: Hand; hero: string | null; labelOf: (name: string) => Label | null; notes: Map<string, HandNote> }) {
   const lines = useMemo(() => hand.raw.split("\n"), [hand.raw]);
   const heroIn = hero !== null && hand.players.some((p) => p.name === hero);
   const sid = sessionIdOf(hand);
@@ -94,6 +100,15 @@ function HandView({ hand, hero }: { hand: Hand; hero: string | null }) {
 
       <HandReplayer hand={hand} />
       <HandNotesEditor handId={hand.id} />
+      {hero && (
+        <section className="card">
+          <h2 style={{ marginTop: 0 }}>Esporta per Claude</h2>
+          <ClaudeExportBox
+            resetKey={hand.id}
+            build={() => buildGroupExport({ title: `Mano #${hand.id}`, hands: [hand], hero, labelOf, notes })}
+          />
+        </section>
+      )}
 
       <div className="table-wrap card">
         <table>

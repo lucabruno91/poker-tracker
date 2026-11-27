@@ -97,6 +97,23 @@ export function filterHands(
 const KINDS: HandKind[] = ["showdown", "allin", "vpip"];
 const SORTS: HandSort[] = ["recent", "pot", "worst", "best"];
 
+const KIND_TEXT: Record<HandKind, string> = { showdown: "allo showdown", allin: "con un all-in", vpip: "giocate" };
+const SORT_TEXT: Record<HandSort, string> = {
+  recent: "", pot: "per piatto", worst: "per perdite", best: "per vincite",
+};
+
+/** Descrizione breve del filtro, es. «BB, perse, carte AK». Vuota senza filtri. */
+export function describeHandFilter(f: HandFilter): string {
+  const parts: string[] = [];
+  if (f.position) parts.push(f.position);
+  if (f.kind) parts.push(KIND_TEXT[f.kind]);
+  if (f.result) parts.push(f.result === "won" ? "vinte" : "perse");
+  if (f.cards) parts.push(`carte ${f.cards}`);
+  if (f.tag) parts.push(f.tag === "any" ? "con tag o nota" : `tag «${HAND_TAGS[f.tag]}»`);
+  if (SORT_TEXT[f.sort]) parts.push(`ordinate ${SORT_TEXT[f.sort]}`);
+  return parts.join(", ");
+}
+
 /** Filtro letto dalla query dell'URL (`pos`, `tipo`, `esito`, `carte`, `ordina`). */
 export function parseHandQuery(query: string): HandFilter {
   const p = new URLSearchParams(query);

@@ -10,7 +10,7 @@ import { Term } from "../Term";
 import { formatBb, formatDate, formatEuro, formatSigned } from "../format";
 import { href } from "../router";
 import { PositionTable } from "../PositionTable";
-import { db, labelFor, usePlayers, type AppData } from "../data";
+import { db, labelFor, useHandNotes, usePlayers, type AppData } from "../data";
 
 export function SessionDetail({ data, id }: { data: AppData; id: string }) {
   const session = data.sessions.find((s) => s.id === id);
@@ -38,6 +38,7 @@ function SessionView({ data, session }: { data: AppData; session: Session }) {
   const indexOf = useMemo(() => new Map(hands.map((h, i) => [h.id, i + 1])), [hands]);
   const bb = hands[0]?.bb ?? 2;
   const players = usePlayers(data.hands);
+  const notes = useHandNotes();
 
   const biggest = useMemo(
     () =>
@@ -77,6 +78,7 @@ function SessionView({ data, session }: { data: AppData; session: Session }) {
       hero,
       selectedIds: selected,
       labelOf: (name) => labelFor(name, players, data.profiles).label,
+      notes,
     });
 
   const per100 = bbPer100(session.net, bb, session.hero.hands);
