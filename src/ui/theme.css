@@ -342,8 +342,7 @@ input[type="date"] {
   transform: translate(-50%, -50%);
   text-align: center;
 }
-.rp-board .cards { font-size: 1.15rem; background: var(--paper); color: var(--ink); padding: 0.1rem 0.45rem; border-radius: 4px; }
-.rp-board .suit-h, .rp-board .suit-d { color: var(--red); }
+.rp-board .cards { font-size: 1.25rem; gap: 4px; }
 .rp-pot { margin-top: 0.35rem; font-size: 0.9rem; }
 .rp-slot { position: absolute; transform: translate(-50%, -50%); z-index: 1; }
 .rp-seat {
@@ -424,8 +423,25 @@ input[type="date"] {
 .hl-win { color: var(--clear); font-weight: 600; }
 .hl-hero { background: rgba(201, 162, 75, 0.12); }
 
-.cards { font-family: var(--font-mono); }
-.suit-h, .suit-d { color: var(--red-text); }
+/* Carte: mazzo a quattro colori su carta chiara (colori in src/ui/cards.ts). */
+.cards { display: inline-flex; gap: 3px; vertical-align: middle; white-space: nowrap; }
+.playing-card {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+  min-width: 2.1em;
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+  background: #f1e8d6;
+  color: #14181c;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.9em;
+  line-height: 1.35;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+.card-suit { font-family: system-ui, "Segoe UI Symbol", "Apple Symbols", sans-serif; font-size: 0.95em; }
 
 /* --- Lista delle mani */
 .hands-table tr.clickable { cursor: pointer; }

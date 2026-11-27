@@ -377,6 +377,8 @@ Stile coerente con l'app di studio esistente: tema scuro, testi color carta.
 font: Fraunces (titoli), Inter (testo), IBM Plex Mono (numeri)
 ```
 
+Carte: mazzo a quattro colori, ogni carta su un piccolo fondo chiaro con rango e simbolo del seme (♥ cuori rosso, ♦ quadri blu, ♣ fiori verde, ♠ picche nero; il 10 si mostra «10»). Ogni colore ha contrasto almeno 4,5:1 sul fondo della carta e i lettori di schermo leggono il nome per esteso («asso di cuori»).
+
 Colori delle etichette: Regular forte `#B5534F`, Regular medio `#C98A3A`, Regular con leak `#C9A24B`, Roccia `#6C8FB8`, Ibrido / bot `#8A8375`, Fish `#6FA386`, Balena `#3E6353`.
 
 Schermate:

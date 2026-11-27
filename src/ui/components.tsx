@@ -4,6 +4,7 @@ import { displayStats } from "../stats/aggregate";
 import { assessStat, FEW_CASES, STAT_REFERENCES, type StatKey } from "../stats/reference";
 import type { EffectiveLabel } from "../labels/autoLabel";
 import { formatAf, formatBb, formatEuro, formatPct } from "./format";
+import { describeCard, isSuit, rankLabel, SUITS } from "./cards";
 import { STAT_GLOSSARY } from "./glossary";
 import { Term } from "./Term";
 
@@ -65,18 +66,32 @@ export function Bb({ cents, bb }: { cents: Cents; bb: Cents }) {
   return <span className={`num ${cls}`}>{formatBb(cents / bb)}</span>;
 }
 
-const SUIT_CLASS: Record<string, string> = { h: "suit-h", d: "suit-d", c: "suit-c", s: "suit-s" };
-
+/**
+ * Carte come piccole carte chiare a quattro colori (cuori rosso, quadri blu,
+ * fiori verde, picche nero), con il simbolo del seme. I lettori di schermo
+ * leggono i nomi per esteso («asso di cuori, re di fiori»).
+ */
 export function Cards({ cards }: { cards: string | null }) {
   if (!cards) return <span className="muted">—</span>;
+  const list = cards.split(/\s+/).filter(Boolean);
   return (
-    <span className="cards">
-      {cards.split(" ").map((c, i) => (
-        <span key={i} className={SUIT_CLASS[c.slice(-1)] ?? ""}>
-          {i > 0 ? " " : ""}
-          {c}
-        </span>
-      ))}
+    <span className="cards" role="img" aria-label={list.map(describeCard).join(", ")}>
+      {list.map((c, i) => {
+        const suit = c[1] ?? "";
+        if (!isSuit(suit)) {
+          return (
+            <span key={i} className="playing-card" aria-hidden="true">
+              {c}
+            </span>
+          );
+        }
+        return (
+          <span key={i} className={`playing-card suit-${suit}`} style={{ color: SUITS[suit].color }} aria-hidden="true">
+            {rankLabel(c[0] ?? "")}
+            <span className="card-suit">{SUITS[suit].symbol}</span>
+          </span>
+        );
+      })}
     </span>
   );
 }
