@@ -13,6 +13,7 @@ import { splitHands } from "../src/parser/splitHands";
 import { handStats } from "../src/stats/handStats";
 import { addInto, emptyCounters } from "../src/stats/aggregate";
 import { buildSessions } from "../src/stats/sessions";
+import { classifyAllIn, expectedNet, spotEquity } from "../src/stats/allInEv";
 import { groupEvenings } from "../src/stats/evenings";
 import { heroByPosition } from "../src/stats/byPosition";
 import { heroByStartingHand } from "../src/stats/startingHands";
@@ -109,6 +110,30 @@ describe.skipIf(!enabled)("valori di riferimento (fixture reali)", () => {
     expect(evenings.reduce((a, e) => a + e.rebuys, 0)).toBe(ref.totals.rebuys);
     expect(evenings.reduce((a, e) => a + e.hands, 0)).toBe(ref.totals.hands);
   });
+
+  it("all-in EV: equity valide e serie coerente", () => {
+    const byId = new Map(hands.map((h) => [h.id, h]));
+    const expected = new Map<string, number>();
+    let spots = 0;
+    let multiway = 0;
+    let actualBb = 0;
+    for (const h of hands) {
+      const k = classifyAllIn(h, ref.hero);
+      if (k.kind === "multiway") multiway++;
+      if (k.kind !== "spot") continue;
+      spots++;
+      const eq = spotEquity(k.spot);
+      expect(eq, h.id).toBeGreaterThanOrEqual(0);
+      expect(eq, h.id).toBeLessThanOrEqual(1);
+      expected.set(h.id, expectedNet(h, ref.hero, eq));
+      actualBb += (h.net[ref.hero] ?? 0) / h.bb;
+    }
+    const series = buildResultSeries(sessions, byId, ref.hero, expected);
+    const evBb = [...expected].reduce((a, [id, v]) => a + v / (byId.get(id)?.bb ?? 2), 0);
+    expect(series.allInEv).toHaveLength(ref.totals.hands);
+    expect(series.allInEv.at(-1)).toBeCloseTo(ref.totals.netBb - actualBb + evBb, 6);
+    console.log(`all-in: ${spots} spot, ${multiway} multiway, reale ${actualBb.toFixed(1)} bb, atteso ${evBb.toFixed(1)} bb`);
+  }, 120_000);
 
   for (const expected of ref.sessions) {
     it(`contatori dell'hero — ${expected.table}`, () => {

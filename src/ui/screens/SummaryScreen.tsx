@@ -10,13 +10,35 @@ import { FilterBar } from "../FilterBar";
 import { PositionTable } from "../PositionTable";
 import { StartingHandsGrid } from "../StartingHandsGrid";
 import type { Hand } from "../../types";
+import { useAllInEv, type AllInEvState } from "../useAllInEv";
+
+/** Riga sotto il grafico: all-in considerati e differenza tra risultato reale e atteso. */
+function AllInSummary({ state }: { state: AllInEvState }) {
+  const { spots, multiway, computed, done, actualBb, expectedBb } = state;
+  if (spots.length === 0 && multiway === 0) return null;
+  const excluded = multiway > 0 ? ` (${multiway} a più giocatori esclusi)` : "";
+  if (!done) {
+    return (
+      <p className="small muted" role="status">
+        Calcolo dell'all-in EV: {computed} di {spots.length} all-in{excluded}…
+      </p>
+    );
+  }
+  const luck = actualBb - expectedBb;
+  return (
+    <p className="small" role="status">
+      <strong>All-in prima del river:</strong> {spots.length}
+      {excluded} · risultato reale <span className={`num ${signClass(actualBb)}`}>{formatBb(actualBb)}</span>, atteso{" "}
+      <span className={`num ${signClass(expectedBb)}`}>{formatBb(expectedBb)}</span> · fortuna{" "}
+      <span className={`num ${signClass(luck)}`}>{formatBb(luck)}</span>
+    </p>
+  );
+}
 
 export function SummaryScreen({ data }: { data: AppData }) {
   const filterState = useFilter(data);
   const { handsById, hero } = data;
   const { sessions } = filterState;
-
-  const series = useMemo(() => buildResultSeries(sessions, handsById, hero), [sessions, handsById, hero]);
 
   const { counters, net, rebuys, heroHands } = useMemo(() => {
     const counters = emptyCounters();
@@ -34,6 +56,12 @@ export function SummaryScreen({ data }: { data: AppData }) {
     }
     return { counters, net, rebuys, heroHands };
   }, [sessions, handsById, hero]);
+
+  const allIn = useAllInEv(heroHands, hero);
+  const series = useMemo(
+    () => buildResultSeries(sessions, handsById, hero, allIn.expected),
+    [sessions, handsById, hero, allIn.expected],
+  );
 
   const totalBb = series.total[series.total.length - 1] ?? 0;
 
@@ -80,9 +108,13 @@ export function SummaryScreen({ data }: { data: AppData }) {
                 { label: "Totale", points: series.total, className: "line-total" },
                 { label: "Showdown", points: series.showdown, className: "line-sd" },
                 { label: "Senza showdown", points: series.nonShowdown, className: "line-nsd" },
+                ...(series.allInEv.length > 0
+                  ? [{ label: "All-in EV", points: series.allInEv, className: "line-ev" }]
+                  : []),
               ]}
               sessionStarts={series.sessionStarts}
             />
+            <AllInSummary state={allIn} />
             <p className="small muted">
               Le linee verticali separano le sessioni. «Showdown»: mani in cui hai mostrato o buttato le carte allo
               showdown; «senza showdown»: piatti vinti o persi prima. Una linea senza showdown in discesa di solito vuol dire

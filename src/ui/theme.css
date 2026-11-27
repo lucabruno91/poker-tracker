@@ -242,6 +242,10 @@ input[type="date"] {
 .legend-swatch { display: inline-block; width: 1.1rem; height: 3px; border-radius: 2px; background: var(--gold); }
 .legend-swatch.line-sd { background: var(--blue); }
 .legend-swatch.line-nsd { background: var(--red-text); }
+.chart .line.line-ev { stroke: var(--paper); stroke-width: 1.5; stroke-dasharray: 5 3; }
+.legend-swatch.line-ev {
+  background: repeating-linear-gradient(90deg, var(--paper) 0 5px, transparent 5px 8px);
+}
 .chart text { fill: var(--muted-text); font-family: var(--font-mono); font-size: 11px; }
 
 /* --- Griglia mani iniziali */
