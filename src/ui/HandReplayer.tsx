@@ -48,15 +48,44 @@ function Seat({ s, isButton, isActor, showCards }: { s: SeatState; isButton: boo
   );
 }
 
+/** Millisecondi per passo nella riproduzione automatica. */
+export const SPEEDS = { slow: 2000, normal: 1000, fast: 500 } as const;
+
+function prefersReducedMotion(): boolean {
+  return typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 /** Replay grafico di una mano, passo per passo (SPEC §6.12). */
 export function HandReplayer({ hand }: { hand: Hand }) {
   const steps = useMemo(() => buildReplay(hand), [hand]);
   const [i, setI] = useState(0);
   const [showAll, setShowAll] = useState(false);
-  useEffect(() => setI(0), [hand.id]);
+  const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState<number>(() => (prefersReducedMotion() ? SPEEDS.slow : SPEEDS.normal));
+  useEffect(() => {
+    setI(0);
+    setPlaying(false);
+  }, [hand.id]);
 
   const last = steps.length - 1;
   const go = (n: number) => setI(Math.min(Math.max(n, 0), last));
+
+  /** Avvia o ferma la riproduzione; dalla fine riparte dall'inizio. */
+  const togglePlay = () => {
+    if (!playing && i >= last) setI(0);
+    setPlaying(!playing);
+  };
+
+  // Riproduzione automatica: un passo ogni `speed` ms, stop all'ultimo.
+  useEffect(() => {
+    if (!playing) return;
+    if (i >= last) {
+      setPlaying(false);
+      return;
+    }
+    const t = window.setTimeout(() => setI((x) => Math.min(x + 1, last)), speed);
+    return () => window.clearTimeout(t);
+  }, [playing, i, last, speed]);
 
   // Frecce della tastiera ovunque nella pagina, tranne quando si scrive in un campo.
   useEffect(() => {
@@ -64,7 +93,9 @@ export function HandReplayer({ hand }: { hand: Hand }) {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
       if (e.altKey || e.ctrlKey || e.metaKey) return;
-      if (e.key === "ArrowRight") setI((x) => Math.min(x + 1, last));
+      // Spazio: avvia/ferma. Su un pulsante lo spazio lo «clicca» già: non raddoppiare.
+      if (e.key === " " && t?.tagName !== "BUTTON") togglePlay();
+      else if (e.key === "ArrowRight") setI((x) => Math.min(x + 1, last));
       else if (e.key === "ArrowLeft") setI((x) => Math.max(x - 1, 0));
       else if (e.key === "Home") setI(0);
       else if (e.key === "End") setI(last);
@@ -73,7 +104,7 @@ export function HandReplayer({ hand }: { hand: Hand }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [last]);
+  });
 
   const step = steps[i];
   if (!step) return null;
@@ -115,7 +146,7 @@ export function HandReplayer({ hand }: { hand: Hand }) {
             {step.text}
           </div>
           <div className="small muted">
-            passo {i + 1} di {steps.length} · frecce ← → della tastiera
+            passo {i + 1} di {steps.length} · frecce ← → della tastiera, spazio per riprodurre
           </div>
         </div>
         <button type="button" className="rp-arrow" onClick={() => go(i + 1)} disabled={i === last} aria-label="Passo successivo">
@@ -123,6 +154,17 @@ export function HandReplayer({ hand }: { hand: Hand }) {
         </button>
       </div>
       <div className="row small" style={{ justifyContent: "center", marginTop: "0.5rem" }}>
+        <button type="button" className={playing ? "primary" : ""} aria-pressed={playing} onClick={togglePlay}>
+          {playing ? "❚❚ Pausa" : "▶ Riproduci"}
+        </button>
+        <label htmlFor="rp-speed" className="sr-only">
+          Velocità della riproduzione
+        </label>
+        <select id="rp-speed" value={speed} onChange={(e) => setSpeed(Number(e.target.value))}>
+          <option value={SPEEDS.slow}>Lenta</option>
+          <option value={SPEEDS.normal}>Normale</option>
+          <option value={SPEEDS.fast}>Veloce</option>
+        </select>
         <button type="button" onClick={() => go(0)} disabled={i === 0}>
           Inizio
         </button>

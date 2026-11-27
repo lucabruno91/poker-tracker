@@ -398,7 +398,7 @@ Schermate:
    - Paginazione da 50.
    - I filtri restano nell'URL. Cliccando una riga si apre la mano e, da lì, «mano precedente / successiva» segue la stessa lista.
 6. **Mano**: sotto il replayer, i tag di studio (pulsanti attiva/disattiva, salvati subito) e una nota libera. Nella lista Mani le mani annotate hanno un segno ✎ e c'è il filtro «Tag» (un tag preciso o «con un tag o una nota»).
-   Replay grafico passo per passo (6.12) su un tavolo ovale con l'hero in basso. Si va avanti e indietro con ◀ ▶ o con le frecce della tastiera (Home/End per inizio e fine). Sotto, i giocatori con i risultati e il testo originale con le azioni evidenziate per strada, più il pulsante «Copia».
+   Replay grafico passo per passo (6.12) su un tavolo ovale con l'hero in basso. Si va avanti e indietro con ◀ ▶ o con le frecce della tastiera (Home/End per inizio e fine). «▶ Riproduci» fa avanzare da solo un passo alla volta: lenta 2 s, normale 1 s, veloce 0,5 s, con partenza lenta se il sistema chiede di ridurre il movimento. Si ferma all'ultimo passo, riparte dall'inizio se avviata alla fine, si avvia e ferma anche con la barra spaziatrice e si interrompe cambiando mano. Sotto, i giocatori con i risultati e il testo originale con le azioni evidenziate per strada, più il pulsante «Copia».
 7. **Impostazioni** — nome dell'hero, backup ed eliminazione dei dati.
 
 Accessibilità: tutti i controlli raggiungibili da tastiera, `aria-label` sugli elementi solo icona, contrasto sufficiente sul tema scuro.
