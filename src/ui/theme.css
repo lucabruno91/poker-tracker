@@ -271,6 +271,19 @@ input[type="date"] {
 .chart .line { fill: none; stroke: var(--gold); stroke-width: 2; }
 .chart .line.line-sd { stroke: var(--blue); stroke-width: 1.5; }
 .chart .line.line-nsd { stroke: var(--red-text); stroke-width: 1.5; }
+.chart svg.selectable { cursor: crosshair; touch-action: pan-y; user-select: none; }
+.chart-selection .dim { fill: var(--ink); opacity: 0.45; }
+.chart-selection .sel { fill: rgba(201, 162, 75, 0.12); stroke: var(--gold); stroke-width: 1; }
+.chart-select-controls { margin-top: 0.6rem; }
+.chart-select-controls input[type="number"] {
+  width: 4.5rem;
+  font: inherit;
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid #3a444e;
+  border-radius: 6px;
+  padding: 0.25rem 0.4rem;
+}
 .chart-legend { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-top: 0.5rem; font-size: 0.85rem; }
 .legend-item { display: inline-flex; align-items: center; gap: 0.4rem; }
 .legend-swatch { display: inline-block; width: 1.1rem; height: 3px; border-radius: 2px; background: var(--gold); }
@@ -418,3 +431,7 @@ input[type="date"] {
 .hands-table tr.clickable { cursor: pointer; }
 .hands-table tr.clickable:hover { background: rgba(201, 162, 75, 0.07); }
 .hands-table td { white-space: nowrap; }
+
+/* --- Selezione nel grafico */
+.selection-panel { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--ink-line); }
+.selection-panel > .row { margin-bottom: 0.5rem; }

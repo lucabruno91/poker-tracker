@@ -5,15 +5,12 @@ import {
 } from "../../stats/handFilters";
 import { POSITION_ORDER } from "../../stats/byPosition";
 import type { Hand, Position } from "../../types";
-import { Bb, Cards, signClass } from "../components";
-import { formatBb, formatDate, formatEuro } from "../format";
-import { POSITION_GLOSSARY } from "../glossary";
+import { signClass } from "../components";
+import { HandList, PAGE_SIZE, Pager } from "../HandList";
+import { formatBb } from "../format";
 import { href, replaceQuery } from "../router";
-import { Term } from "../Term";
 import { useFilter, type AppData } from "../data";
 import { FilterBar } from "../FilterBar";
-
-export const PAGE_SIZE = 50;
 
 /** Mani dell'hero nelle sessioni che rispettano periodo e stake. */
 export function useHeroHands(data: AppData): Hand[] {
@@ -136,63 +133,12 @@ export function HandsScreen({ data, query }: { data: AppData; query: string }) {
       {shown.length === 0 ? (
         <p className="muted">Nessuna mano corrisponde ai filtri.</p>
       ) : (
-        <div className="card table-wrap">
-          <table className="hands-table">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Tavolo</th>
-                <th>Pos.</th>
-                <th>Carte</th>
-                <th>Board</th>
-                <th className="num">Piatto</th>
-                <th className="num">Risultato</th>
-              </tr>
-            </thead>
-            <tbody>
-              {shown.map((h) => {
-                const pos = hero ? h.positions[hero] : undefined;
-                const link = href.hand(h.id, listQuery);
-                return (
-                  <tr key={h.id} className="clickable" onClick={() => (window.location.hash = link)}>
-                    <td className="num">
-                      <a href={link} onClick={(e) => e.stopPropagation()}>
-                        {formatDate(h.playedAt)} {h.playedAt.slice(11, 16)}
-                      </a>
-                    </td>
-                    <td>{h.table}</td>
-                    <td>{pos ? <Term tip={POSITION_GLOSSARY[pos]}>{pos}</Term> : "—"}</td>
-                    <td>
-                      <Cards cards={h.heroName === hero ? h.heroCards : null} />
-                    </td>
-                    <td>
-                      <Cards cards={h.board.length ? h.board.join(" ") : null} />
-                    </td>
-                    <td className="num">{formatEuro(h.pot)}</td>
-                    <td className="num">
-                      <Bb cents={h.net[hero ?? ""] ?? 0} bb={h.bb} />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="card">
+          <HandList hands={shown} hero={hero} from={listQuery} />
         </div>
       )}
 
-      {pages > 1 && (
-        <nav className="row" aria-label="Pagine" style={{ justifyContent: "center" }}>
-          <button type="button" disabled={page <= 1} onClick={() => goPage(page - 1)}>
-            ← Precedenti
-          </button>
-          <span className="small muted">
-            pagina {page} di {pages}
-          </span>
-          <button type="button" disabled={page >= pages} onClick={() => goPage(page + 1)}>
-            Successive →
-          </button>
-        </nav>
-      )}
+      <Pager page={page} pages={pages} onPage={goPage} />
     </>
   );
 }

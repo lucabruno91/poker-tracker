@@ -1,15 +1,16 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { addInto, emptyCounters } from "../../stats/aggregate";
-import { buildResultSeries } from "../../stats/series";
-import { CumulativeChart } from "../CumulativeChart";
+import { buildResultSeries, sessionAtRange, summarizeRange, type ResultSeries } from "../../stats/series";
+import { CumulativeChart, type ChartRange } from "../CumulativeChart";
+import { HandList, PAGE_SIZE, Pager } from "../HandList";
 import { Kpi, signClass, StatsGrid } from "../components";
-import { formatBb, formatEuro, formatSigned } from "../format";
+import { formatBb, formatDate, formatEuro, formatSigned } from "../format";
 import { href } from "../router";
 import { useFilter, type AppData } from "../data";
 import { FilterBar } from "../FilterBar";
 import { PositionTable } from "../PositionTable";
 import { StartingHandsGrid } from "../StartingHandsGrid";
-import type { Hand } from "../../types";
+import type { Hand, Session } from "../../types";
 import { useAllInEv, type AllInEvState } from "../useAllInEv";
 import { TERM_GLOSSARY } from "../glossary";
 import { Term } from "../Term";
@@ -40,6 +41,57 @@ function AllInSummary({ state }: { state: AllInEvState }) {
   );
 }
 
+/** Riepilogo ed elenco delle mani del tratto selezionato nel grafico (SPEC §6.9). */
+function SelectionPanel(props: {
+  series: ResultSeries;
+  range: ChartRange;
+  sessions: Session[];
+  handsById: Map<string, Hand>;
+  hero: string | null;
+  onClear: () => void;
+}) {
+  const { series, range, sessions, handsById, hero, onClear } = props;
+  const ref = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(1);
+  const sum = useMemo(() => summarizeRange(series, range[0], range[1]), [series, range]);
+  const hands = useMemo(
+    () => sum.handIds.map((id) => handsById.get(id)).filter((h): h is Hand => h !== undefined),
+    [sum, handsById],
+  );
+  const sessionId = sessionAtRange(series, sum.from, sum.to);
+  const session = sessionId ? sessions.find((x) => x.id === sessionId) : undefined;
+
+  useEffect(() => {
+    setPage(1);
+    ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [range]);
+
+  const pages = Math.max(1, Math.ceil(hands.length / PAGE_SIZE));
+  const shown = hands.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const bb = (v: number) => <span className={`num ${signClass(v)}`}>{formatBb(v)}</span>;
+
+  return (
+    <div className="selection-panel" ref={ref}>
+      <div className="row">
+        <p className="small" role="status" aria-live="polite" style={{ margin: 0 }}>
+          <strong>
+            {session ? `${session.table} · ${formatDate(session.date)}` : `Mani ${sum.from + 1}–${sum.to + 1}`}
+          </strong>{" "}
+          ({sum.count} {sum.count === 1 ? "mano" : "mani"}) · risultato {bb(sum.totalBb)} · showdown {bb(sum.showdownBb)} ·
+          senza showdown {bb(sum.nonShowdownBb)}
+        </p>
+        <span className="spacer" />
+        {session && <a href={href.session(session.id)}>Apri la sessione</a>}
+        <button type="button" onClick={onClear}>
+          Azzera selezione
+        </button>
+      </div>
+      <HandList hands={shown} hero={hero} />
+      <Pager page={page} pages={pages} onPage={setPage} />
+    </div>
+  );
+}
+
 export function SummaryScreen({ data }: { data: AppData }) {
   const filterState = useFilter(data);
   const { handsById, hero } = data;
@@ -63,6 +115,10 @@ export function SummaryScreen({ data }: { data: AppData }) {
   }, [sessions, handsById, hero]);
 
   const allIn = useAllInEv(heroHands, hero);
+  const [selection, setSelection] = useState<ChartRange | null>(null);
+  // Cambiando i filtri cambia la serie: la selezione non avrebbe più senso.
+  useEffect(() => setSelection(null), [sessions]);
+
   const series = useMemo(
     () => buildResultSeries(sessions, handsById, hero, allIn.expected),
     [sessions, handsById, hero, allIn.expected],
@@ -120,8 +176,20 @@ export function SummaryScreen({ data }: { data: AppData }) {
                   : []),
               ]}
               sessionStarts={series.sessionStarts}
+              selection={selection}
+              onSelect={setSelection}
             />
             <AllInSummary state={allIn} />
+            {selection && (
+              <SelectionPanel
+                series={series}
+                range={selection}
+                sessions={sessions}
+                handsById={handsById}
+                hero={hero}
+                onClear={() => setSelection(null)}
+              />
+            )}
             <p className="small muted">
               Le linee verticali separano le sessioni. «Showdown»: mani in cui hai mostrato o buttato le carte allo
               showdown; «senza showdown»: piatti vinti o persi prima. Una linea senza showdown in discesa di solito vuol dire
