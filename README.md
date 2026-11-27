@@ -1,5 +1,7 @@
 # Poker Session Tracker
 
+[![CI](https://github.com/lucabruno91/poker-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/lucabruno91/poker-tracker/actions/workflows/ci.yml)
+
 Webapp local-first per analizzare **dopo la sessione** le hand history di PokerStars
 (cash game NL Hold'em): risultati, statistiche, archivio avversari, esportazione per Claude.
 Le specifiche complete sono in [SPEC.md](SPEC.md).
@@ -19,6 +21,10 @@ npm test           # test (Vitest)
 npm run typecheck  # controllo TypeScript
 npm run build      # build di produzione in dist/
 ```
+
+## Controlli automatici
+
+Ogni pull request verso `main` esegue `.github/workflows/ci.yml`: typecheck, test e build. Il controllo deve essere verde prima del merge. In CI i test di riferimento sulle hand history reali vengono saltati, perché `fixtures/` non è nel repository: vanno eseguiti in locale.
 
 ## Versione online
 
