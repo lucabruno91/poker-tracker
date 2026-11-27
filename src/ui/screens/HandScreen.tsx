@@ -6,6 +6,8 @@ import { formatDate, formatEuro } from "../format";
 import { href } from "../router";
 import { HandReplayer } from "../HandReplayer";
 import type { AppData } from "../data";
+import { filterHands, parseHandQuery } from "../../stats/handFilters";
+import { useHeroHands } from "./HandsScreen";
 
 function lineClass(line: string, hero: string | null): string {
   const classes: string[] = [];
@@ -20,17 +22,47 @@ function lineClass(line: string, hero: string | null): string {
   return classes.join(" ");
 }
 
-export function HandScreen({ data, id }: { data: AppData; id: string }) {
+/** Navigazione nella lista Mani da cui si è arrivati (stessi filtri, stesso ordine). */
+function ListNav({ data, id, from }: { data: AppData; id: string; from: string }) {
+  const all = useHeroHands(data);
+  const list = useMemo(
+    () => (data.hero ? filterHands(all, data.hero, parseHandQuery(from)) : []),
+    [all, data.hero, from],
+  );
+  const i = list.findIndex((h) => h.id === id);
+  const prev = i > 0 ? list[i - 1] : undefined;
+  const next = i >= 0 ? list[i + 1] : undefined;
+  return (
+    <nav className="row small" aria-label="Mani della lista" style={{ marginBottom: "0.5rem" }}>
+      <a href={href.hands(from)}>← Lista delle mani</a>
+      <span className="spacer" />
+      {prev ? <a href={href.hand(prev.id, from)}>‹ Mano precedente</a> : <span className="muted">‹ Mano precedente</span>}
+      {i >= 0 && (
+        <span className="muted">
+          {i + 1} di {list.length}
+        </span>
+      )}
+      {next ? <a href={href.hand(next.id, from)}>Mano successiva ›</a> : <span className="muted">Mano successiva ›</span>}
+    </nav>
+  );
+}
+
+export function HandScreen({ data, id, from }: { data: AppData; id: string; from: string | null }) {
   const hand = data.handsById.get(id);
   if (!hand) {
     return data.loading ? null : (
       <>
         <h1>Mano non trovata</h1>
-        <a href={href.sessions()}>Torna alle sessioni</a>
+        <a href={href.hands()}>Torna alle mani</a>
       </>
     );
   }
-  return <HandView hand={hand} hero={data.hero} />;
+  return (
+    <>
+      {from !== null && <ListNav data={data} id={id} from={from} />}
+      <HandView hand={hand} hero={data.hero} />
+    </>
+  );
 }
 
 function HandView({ hand, hero }: { hand: Hand; hero: string | null }) {

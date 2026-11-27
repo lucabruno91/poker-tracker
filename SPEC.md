@@ -379,8 +379,14 @@ Schermate:
 2. **Riepilogo** — sessioni, mani, risultato (bb ed €), bb/100; grafico del risultato cumulato in bb mano per mano, con linee verticali tra le sessioni; riquadro «Le tue statistiche» con valori fuori riferimento evidenziati.
 3. **Sessioni** — elenco dalla più recente: data, tavolo, mani, risultato, ricariche. Dettaglio sessione: statistiche dell'hero nella sessione, **le 10 mani con il piatto più grande in cui l'hero ha messo soldi** (posizione, carte, risultato), nota libera, selezione delle mani da esportare.
 4. **Avversari** — ricerca per nome o etichetta, ordinamento per mani / VPIP / ultima sessione; riga con nome, mani, VPIP/PFR, etichetta. Dettaglio: tutte le statistiche, sessioni in cui è comparso, mani mostrate allo showdown, nota di Claude, etichetta e nota modificabili.
-5. **Mano**: replay grafico passo per passo (6.12) su un tavolo ovale con l'hero in basso. Si va avanti e indietro con ◀ ▶ o con le frecce della tastiera (Home/End per inizio e fine). Sotto, i giocatori con i risultati e il testo originale con le azioni evidenziate per strada, più il pulsante «Copia».
-6. **Impostazioni** — nome dell'hero, backup ed eliminazione dei dati.
+5. **Mani**: elenco di tutte le mani dell'hero.
+   - Rispetta i filtri di periodo e stake.
+   - Filtri propri: posizione; tipo (arrivate allo showdown, con un all-in in cui l'hero non ha foldato, VPIP); risultato (vinte o perse); carte, a testo libero («AK» = AKs e AKo, «AKs», «QQ», maiuscole e ordine indifferenti).
+   - Ordinamento: più recenti, piatto più grande (in bb), perdite o vincite maggiori.
+   - Paginazione da 50.
+   - I filtri restano nell'URL. Cliccando una riga si apre la mano e, da lì, «mano precedente / successiva» segue la stessa lista.
+6. **Mano**: replay grafico passo per passo (6.12) su un tavolo ovale con l'hero in basso. Si va avanti e indietro con ◀ ▶ o con le frecce della tastiera (Home/End per inizio e fine). Sotto, i giocatori con i risultati e il testo originale con le azioni evidenziate per strada, più il pulsante «Copia».
+7. **Impostazioni** — nome dell'hero, backup ed eliminazione dei dati.
 
 Accessibilità: tutti i controlli raggiungibili da tastiera, `aria-label` sugli elementi solo icona, contrasto sufficiente sul tema scuro.
 
