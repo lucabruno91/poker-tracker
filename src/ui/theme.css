@@ -305,6 +305,93 @@ input[type="date"] {
 .hand-grid .cell-name { font-size: 0.72rem; font-weight: 600; }
 .hand-grid .cell-value { font-family: var(--font-mono); font-size: 0.68rem; }
 
+/* --- Replayer */
+.replayer { padding: 1rem; }
+.rp-table {
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
+}
+.rp-felt {
+  position: absolute;
+  inset: 14% 12%;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at center, #2f5244 0%, var(--pine) 55%, #2b4a3d 100%);
+  border: 6px solid #3a2a1c;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.45);
+}
+.rp-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.rp-board .cards { font-size: 1.15rem; background: var(--paper); color: var(--ink); padding: 0.1rem 0.45rem; border-radius: 4px; }
+.rp-board .suit-h, .rp-board .suit-d { color: var(--red); }
+.rp-pot { margin-top: 0.35rem; font-size: 0.9rem; }
+.rp-slot { position: absolute; transform: translate(-50%, -50%); z-index: 1; }
+.rp-seat {
+  min-width: 7.5rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+  background: var(--ink-soft);
+  border: 2px solid var(--ink-line);
+  text-align: center;
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+.rp-seat.actor { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201, 162, 75, 0.3); }
+.rp-seat.folded { opacity: 0.45; }
+.rp-seat.winner { border-color: var(--clear); }
+.rp-name { font-weight: 600; white-space: nowrap; }
+.rp-meta { display: flex; gap: 0.4rem; justify-content: center; color: var(--paper-dim); }
+.rp-cards { margin-top: 0.15rem; min-height: 1.2rem; }
+.rp-action { font-size: 0.72rem; color: var(--gold); }
+.rp-allin { color: var(--red-text); font-weight: 600; }
+.rp-dealer {
+  display: inline-block;
+  margin-left: 0.3rem;
+  width: 1rem;
+  height: 1rem;
+  line-height: 1rem;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+.card-backs { display: inline-flex; gap: 2px; }
+.card-back {
+  width: 0.8rem;
+  height: 1.1rem;
+  border-radius: 2px;
+  background: repeating-linear-gradient(45deg, var(--red) 0 3px, #8f3f3c 3px 6px);
+  border: 1px solid var(--paper-dim);
+}
+.rp-bet {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.rp-controls { display: flex; align-items: center; gap: 1rem; margin-top: 0.75rem; }
+.rp-step { flex: 1; text-align: center; }
+.rp-text { font-size: 1rem; min-height: 1.5rem; }
+.rp-arrow { font-size: 1.3rem; width: 3rem; height: 3rem; border-radius: 50%; }
+@media (max-width: 600px) {
+  .rp-table { aspect-ratio: 4 / 5; }
+  .rp-seat { min-width: 5.2rem; padding: 0.25rem 0.35rem; font-size: 0.68rem; }
+  .rp-name { max-width: 5.2rem; overflow: hidden; text-overflow: ellipsis; }
+  .rp-bet { font-size: 0.65rem; }
+}
+
 /* --- Mano */
 .hand-raw {
   font-family: var(--font-mono);
