@@ -1,6 +1,6 @@
 import type { Hand, Session } from "../types";
 
-export type Period = "all" | "7d" | "30d" | "custom";
+export type Period = "all" | "today" | "7d" | "30d" | "custom";
 
 export interface Filter {
   period: Period;
@@ -37,6 +37,8 @@ export function addDays(date: string, days: number): string {
 /** Intervallo di date (estremi inclusi) del filtro rispetto a `today`. */
 export function dateRange(filter: Filter, today: string): { from?: string; to?: string } {
   switch (filter.period) {
+    case "today":
+      return { from: today, to: today };
     case "7d":
       return { from: addDays(today, -6), to: today };
     case "30d":
@@ -93,7 +95,8 @@ export function parseFilter(json: string | null | undefined): Filter {
   }
   if (typeof data !== "object" || data === null) return NO_FILTER;
   const o = data as Record<string, unknown>;
-  const period: Period = o.period === "7d" || o.period === "30d" || o.period === "custom" ? o.period : "all";
+  const period: Period =
+    o.period === "today" || o.period === "7d" || o.period === "30d" || o.period === "custom" ? o.period : "all";
   const f: Filter = { period };
   if (period === "custom") {
     if (isDate(o.from)) f.from = o.from;

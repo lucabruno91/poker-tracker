@@ -5,6 +5,7 @@ import { formatDate } from "./format";
 
 const PERIODS: { value: Period; text: string }[] = [
   { value: "all", text: "Tutto" },
+  { value: "today", text: "Oggi" },
   { value: "7d", text: "Ultimi 7 giorni" },
   { value: "30d", text: "Ultimi 30 giorni" },
   { value: "custom", text: "Intervallo" },
@@ -93,6 +94,19 @@ export function FilterBar({ data, state }: { data: AppData; state: FilterState }
         )}
 
         <span className="spacer" />
+        {filter.period !== "today" && (
+          <button
+            type="button"
+            onClick={() => {
+              const next = { ...filter, period: "today" as const };
+              delete next.from;
+              delete next.to;
+              setFilter(next);
+            }}
+          >
+            Oggi
+          </button>
+        )}
         {active && (
           <button type="button" onClick={() => setFilter(NO_FILTER)}>
             Azzera filtri
@@ -102,9 +116,11 @@ export function FilterBar({ data, state }: { data: AppData; state: FilterState }
       {active && (
         <p className="small muted" role="status" style={{ margin: "0.5rem 0 0" }}>
           Filtro attivo: {state.sessions.length} di {data.sessions.length} sessioni
-          {range.from || range.to
-            ? ` · ${range.from ? `dal ${formatDate(range.from)}` : ""}${range.from && range.to ? " " : ""}${range.to ? `al ${formatDate(range.to)}` : ""}`
-            : ""}
+          {filter.period === "today"
+            ? ` · oggi, ${formatDate(today)}`
+            : range.from || range.to
+              ? ` · ${range.from ? `dal ${formatDate(range.from)}` : ""}${range.from && range.to ? " " : ""}${range.to ? `al ${formatDate(range.to)}` : ""}`
+              : ""}
           {filter.stake ? ` · stake ${filter.stake}` : ""}
         </p>
       )}
