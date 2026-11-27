@@ -7,7 +7,8 @@ import { useDismiss } from "../useDismiss";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Kpi, signClass, StatsGrid } from "../components";
 import { formatBb, formatDate, formatEuro, formatSigned } from "../format";
-import { href } from "../router";
+import { href, replaceQuery } from "../router";
+import { filterSignature, parseSelection, selectionQuery } from "../selectionUrl";
 import { db, useFilter, type AppData } from "../data";
 import { FilterBar } from "../FilterBar";
 import { PositionTable } from "../PositionTable";
@@ -105,7 +106,7 @@ function SelectionPanel(props: {
   );
 }
 
-export function SummaryScreen({ data }: { data: AppData }) {
+export function SummaryScreen({ data, query = "" }: { data: AppData; query?: string }) {
   const filterState = useFilter(data);
   const { handsById, hero } = data;
   const { sessions } = filterState;
@@ -128,10 +129,6 @@ export function SummaryScreen({ data }: { data: AppData }) {
   }, [sessions, handsById, hero]);
 
   const allIn = useAllInEv(heroHands, hero);
-  const [selection, setSelection] = useState<ChartRange | null>(null);
-  // Un clic fuori dal grafico e dal pannello, o Esc, toglie la selezione.
-  const selectionArea = useRef<HTMLDivElement>(null);
-  useDismiss(selectionArea, selection !== null, () => setSelection(null));
 
   // Linee nascoste del grafico, salvate tra le visite (impostazione `chartHidden`).
   const savedHidden = useLiveQuery(async () => (await db.settings.get(CHART_HIDDEN_KEY))?.value ?? null, []);
@@ -140,13 +137,21 @@ export function SummaryScreen({ data }: { data: AppData }) {
     const next = hiddenLines.includes(label) ? hiddenLines.filter((l) => l !== label) : [...hiddenLines, label];
     void db.settings.put({ key: CHART_HIDDEN_KEY, value: JSON.stringify(next) });
   };
-  // Cambiando i filtri cambia la serie: la selezione non avrebbe più senso.
-  useEffect(() => setSelection(null), [sessions]);
-
   const series = useMemo(
     () => buildResultSeries(sessions, handsById, hero, allIn.expected),
     [sessions, handsById, hero, allIn.expected],
   );
+
+  // La selezione del grafico sta nell'URL (`#/?sel=…&f=…`): sopravvive
+  // all'apertura di una mano e al ritorno con «Indietro». Se il filtro è
+  // cambiato rispetto a quando è stata fatta, viene ignorata.
+  const signature = filterSignature(filterState.filter, filterState.today);
+  const count = series.total.length;
+  const selection = useMemo(() => parseSelection(query, signature, count), [query, signature, count]);
+  const setSelection = (range: ChartRange | null) => replaceQuery("#/", selectionQuery(range, signature));
+  // Un clic fuori dal grafico e dal pannello, o Esc, toglie la selezione.
+  const selectionArea = useRef<HTMLDivElement>(null);
+  useDismiss(selectionArea, selection !== null, () => setSelection(null));
 
   const totalBb = series.total[series.total.length - 1] ?? 0;
 

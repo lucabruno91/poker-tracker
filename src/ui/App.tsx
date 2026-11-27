@@ -51,6 +51,6 @@ function Screen({ route, data }: { route: Route; data: ReturnType<typeof useAppD
     case "hands": return <HandsScreen data={data} query={route.query} />;
     case "hand": return <HandScreen data={data} id={route.id} from={route.from} />;
     case "settings": return <SettingsScreen data={data} />;
-    default: return <SummaryScreen data={data} />;
+    default: return <SummaryScreen data={data} query={route.name === "summary" ? route.query : ""} />;
   }
 }

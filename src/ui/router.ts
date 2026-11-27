@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 
 export type Route =
-  | { name: "summary" }
+  /** `query`: selezione del grafico (`sel`, `f`), vedi `selectionUrl.ts`. */
+  | { name: "summary"; query: string }
   | { name: "import" }
   | { name: "sessions" }
   | { name: "session"; id: string }
@@ -25,7 +26,8 @@ export function parseRoute(hash: string): Route {
     case "mani": return { name: "hands", query };
     case "mano": return arg ? { name: "hand", id: arg, from: new URLSearchParams(query).get("da") } : { name: "hands", query: "" };
     case "impostazioni": return { name: "settings" };
-    default: return { name: "summary" };
+    case "": return { name: "summary", query };
+    default: return { name: "summary", query: "" };
   }
 }
 
@@ -43,19 +45,44 @@ export const href = {
   settings: () => "#/impostazioni",
 };
 
+/** Indirizzo normalizzato ("" e "#/" sono la stessa pagina). */
+export const normalizeHash = (hash: string) => hash.replace(/^#\/?/, "");
 /** Percorso senza query: cambia pagina solo se cambia questo. */
-const pathOf = (hash: string) => hash.split("?")[0];
+export const pathOf = (hash: string) => normalizeHash(hash).split("?")[0] ?? "";
+
+/** Posizione di scorrimento lasciata su ogni indirizzo (per la visita corrente). */
+const scrollPositions = new Map<string, number>();
+
+/**
+ * Riporta la pagina a `y`. La pagina può non essere ancora alta abbastanza
+ * (i dati arrivano dal database dopo il primo disegno): si riprova per circa
+ * un secondo, finché lo scorrimento arriva a destinazione.
+ */
+function restoreScroll(y: number): void {
+  let tries = 0;
+  const step = () => {
+    window.scrollTo(0, y);
+    if (Math.abs(window.scrollY - y) > 2 && tries++ < 60) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
 
 export function useRoute(): Route {
   const [route, setRoute] = useState(() => parseRoute(window.location.hash));
   useEffect(() => {
-    let lastPath = pathOf(window.location.hash);
+    let last = normalizeHash(window.location.hash);
     const onChange = () => {
+      const current = normalizeHash(window.location.hash);
+      // Allo scatto di hashchange la pagina mostrata è ancora la precedente.
+      scrollPositions.set(last, window.scrollY);
       setRoute(parseRoute(window.location.hash));
-      // Cambiare solo i filtri (la query) non deve riportare in cima alla pagina.
-      const path = pathOf(window.location.hash);
-      if (path !== lastPath) window.scrollTo(0, 0);
-      lastPath = path;
+      // Cambiare solo la query (filtri, selezione) non sposta la pagina.
+      if (pathOf(current) !== pathOf(last)) {
+        const saved = scrollPositions.get(current);
+        if (saved !== undefined) restoreScroll(saved); // ritorno a un indirizzo già visto (es. Indietro)
+        else window.scrollTo(0, 0); // pagina nuova
+      }
+      last = current;
     };
     window.addEventListener("hashchange", onChange);
     return () => window.removeEventListener("hashchange", onChange);
