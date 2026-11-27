@@ -413,3 +413,8 @@ input[type="date"] {
 
 .cards { font-family: var(--font-mono); }
 .suit-h, .suit-d { color: var(--red-text); }
+
+/* --- Lista delle mani */
+.hands-table tr.clickable { cursor: pointer; }
+.hands-table tr.clickable:hover { background: rgba(201, 162, 75, 0.07); }
+.hands-table td { white-space: nowrap; }

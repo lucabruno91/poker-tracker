@@ -7,11 +7,13 @@ import { SessionDetail } from "./screens/SessionDetail";
 import { OpponentsScreen } from "./screens/OpponentsScreen";
 import { OpponentDetail } from "./screens/OpponentDetail";
 import { HandScreen } from "./screens/HandScreen";
+import { HandsScreen } from "./screens/HandsScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
 
 const NAV: { text: string; link: string; match: Route["name"][] }[] = [
   { text: "Riepilogo", link: href.summary(), match: ["summary"] },
-  { text: "Sessioni", link: href.sessions(), match: ["sessions", "session", "hand"] },
+  { text: "Sessioni", link: href.sessions(), match: ["sessions", "session"] },
+  { text: "Mani", link: href.hands(), match: ["hands", "hand"] },
   { text: "Avversari", link: href.opponents(), match: ["opponents", "opponent"] },
   { text: "Importa", link: href.import(), match: ["import"] },
   { text: "Impostazioni", link: href.settings(), match: ["settings"] },
@@ -46,7 +48,8 @@ function Screen({ route, data }: { route: Route; data: ReturnType<typeof useAppD
     case "session": return <SessionDetail data={data} id={route.id} />;
     case "opponents": return <OpponentsScreen data={data} />;
     case "opponent": return <OpponentDetail data={data} name={route.player} />;
-    case "hand": return <HandScreen data={data} id={route.id} />;
+    case "hands": return <HandsScreen data={data} query={route.query} />;
+    case "hand": return <HandScreen data={data} id={route.id} from={route.from} />;
     case "settings": return <SettingsScreen data={data} />;
     default: return <SummaryScreen data={data} />;
   }
