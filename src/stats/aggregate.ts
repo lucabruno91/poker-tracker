@@ -66,18 +66,3 @@ export function netInBb(net: Cents, bb: Cents): number {
 export function bbPer100(net: Cents, bb: Cents, hands: number): number | null {
   return hands > 0 ? (100 * (net / bb)) / hands : null;
 }
-
-/** Valori di riferimento per un regular 6-max (SPEC §6.5). */
-export const REFERENCE: Record<keyof DisplayStats, { min: number; max: number }> = {
-  vpip: { min: 0.22, max: 0.27 },
-  pfr: { min: 0.18, max: 0.23 },
-  threeBet: { min: 0.05, max: 0.09 },
-  foldTo3Bet: { min: 0.4, max: 0.6 },
-  cbet: { min: 0.55, max: 0.7 },
-  wtsd: { min: 0.25, max: 0.3 },
-  wsd: { min: 0.5, max: 0.55 },
-  af: { min: 2, max: 3 },
-};
-
-/** Sotto questa soglia si mostra il numero di casi. */
-export const FEW_CASES = 20;

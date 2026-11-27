@@ -185,7 +185,9 @@ tbody tr:hover { background: rgba(241, 232, 214, 0.03); }
 .stat-name { font-size: 0.8rem; color: var(--muted-text); }
 .stat-value { font-family: var(--font-mono); font-size: 1.15rem; }
 .stat-ref { font-size: 0.75rem; color: var(--muted-text); }
-.stat-flag { font-size: 0.75rem; color: var(--red-text); }
+.stat-flag { font-size: 0.78rem; color: var(--red-text); font-weight: 600; margin-top: 0.2rem; }
+.stat-hint { font-size: 0.75rem; color: var(--paper-dim); line-height: 1.35; margin-top: 0.15rem; }
+.stat-note { font-size: 0.75rem; color: var(--muted-text); font-style: italic; margin-top: 0.2rem; }
 
 /* --- Etichette */
 .label {
