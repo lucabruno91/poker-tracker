@@ -1,7 +1,7 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { sessionRangeAt } from "../stats/series";
 import { formatBb } from "./format";
-import { Term } from "./Term";
+import { Term, TipButton } from "./Term";
 
 export interface ChartLine {
   label: string;
@@ -20,6 +20,14 @@ const W = 800;
 const H = 280;
 const PAD = { top: 16, right: 16, bottom: 28, left: 56 };
 const INNER_W = W - PAD.left - PAD.right;
+/** Spiegazioni dei pulsanti di sessione sotto il grafico. */
+export const SESSION_TIP = {
+  prev:
+    "Seleziona nel grafico la sessione precedente, con il suo riepilogo e le sue mani. Senza selezione parte dall'ultima sessione; con un tratto libero salta all'ultima sessione che inizia prima.",
+  next:
+    "Seleziona nel grafico la sessione successiva, con il suo riepilogo e le sue mani. Senza selezione parte dalla prima sessione; con un tratto libero salta alla prima sessione che inizia dopo.",
+} as const;
+
 /** Spostamento minimo (in pixel dello schermo) perché un gesto sia un trascinamento. */
 const DRAG_PX = 5;
 
@@ -250,12 +258,12 @@ export function CumulativeChart({ lines, sessionStarts, selection = null, onSele
             placeholder={String(count)}
             onChange={(e) => setBound(1, e.target.value)}
           />
-          <button type="button" onClick={() => goSession(-1)}>
-            ‹ Sessione
-          </button>
-          <button type="button" onClick={() => goSession(1)}>
-            Sessione ›
-          </button>
+          <TipButton tip={SESSION_TIP.prev} onClick={() => goSession(-1)}>
+            ‹ Sessione precedente
+          </TipButton>
+          <TipButton tip={SESSION_TIP.next} onClick={() => goSession(1)}>
+            Sessione successiva ›
+          </TipButton>
         </div>
       )}
     </figure>

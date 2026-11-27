@@ -66,7 +66,6 @@ function SelectionPanel(props: {
   onClear: () => void;
 }) {
   const { series, range, sessions, handsById, hero, onClear } = props;
-  const ref = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
   const sum = useMemo(() => summarizeRange(series, range[0], range[1]), [series, range]);
   const hands = useMemo(
@@ -76,17 +75,16 @@ function SelectionPanel(props: {
   const sessionId = sessionAtRange(series, sum.from, sum.to);
   const session = sessionId ? sessions.find((x) => x.id === sessionId) : undefined;
 
-  useEffect(() => {
-    setPage(1);
-    ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [range]);
+  // Nuova selezione: si riparte dalla prima pagina. Niente scroll automatico:
+  // il pannello compare sotto il grafico e la pagina resta dov'è.
+  useEffect(() => setPage(1), [range]);
 
   const pages = Math.max(1, Math.ceil(hands.length / PAGE_SIZE));
   const shown = hands.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const bb = (v: number) => <span className={`num ${signClass(v)}`}>{formatBb(v)}</span>;
 
   return (
-    <div className="selection-panel" ref={ref}>
+    <div className="selection-panel">
       <div className="row">
         <p className="small" role="status" aria-live="polite" style={{ margin: 0 }}>
           <strong>

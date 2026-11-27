@@ -50,9 +50,9 @@ describe("CumulativeChart — selezione", () => {
     expect(onSelect).toHaveBeenLastCalledWith([1, 6]);
     fireEvent.change(screen.getByLabelText("alla mano"), { target: { value: "9" } });
     expect(onSelect).toHaveBeenLastCalledWith([4, 8]);
-    fireEvent.click(screen.getByRole("button", { name: "Sessione ›" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sessione successiva ›" }));
     expect(onSelect).toHaveBeenLastCalledWith([7, 9]);
-    fireEvent.click(screen.getByRole("button", { name: "‹ Sessione" }));
+    fireEvent.click(screen.getByRole("button", { name: "‹ Sessione precedente" }));
     expect(onSelect).toHaveBeenLastCalledWith([0, 3]);
   });
 
@@ -115,5 +115,21 @@ describe("CumulativeChart — legenda", () => {
     renderChart(["Showdown", "Senza showdown"]);
     const last = screen.getByRole("button", { name: "Nascondi la linea Totale" }) as HTMLButtonElement;
     expect(last.disabled).toBe(true);
+  });
+});
+
+describe("CumulativeChart — pulsanti di sessione", () => {
+  it("hanno testi espliciti e un tooltip che spiega cosa fanno", () => {
+    setup();
+    const next = screen.getByRole("button", { name: "Sessione successiva ›" });
+    const tip = document.getElementById(next.getAttribute("aria-describedby") ?? "");
+    expect(tip?.getAttribute("role")).toBe("tooltip");
+    expect(tip?.textContent).toContain("Seleziona nel grafico la sessione successiva");
+    expect(tip?.classList.contains("open")).toBe(false);
+    fireEvent.mouseEnter(next);
+    expect(tip?.classList.contains("open")).toBe(true);
+    fireEvent.mouseLeave(next);
+    expect(tip?.classList.contains("open")).toBe(false);
+    expect(screen.getByRole("button", { name: "‹ Sessione precedente" })).toBeTruthy();
   });
 });
