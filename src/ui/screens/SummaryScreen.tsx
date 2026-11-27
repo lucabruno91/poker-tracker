@@ -6,11 +6,14 @@ import { Kpi, signClass, StatsGrid } from "../components";
 import { formatBb, formatEuro, formatSigned } from "../format";
 import { href } from "../router";
 import type { AppData } from "../data";
+import { PositionTable } from "../PositionTable";
+import type { Hand } from "../../types";
 
 export function SummaryScreen({ data }: { data: AppData }) {
   const { sessions, handsById, hero } = data;
 
-  const { points, starts, totalBb, counters, net, rebuys, bb } = useMemo(() => {
+  const { points, starts, totalBb, counters, net, rebuys, bb, heroHands } = useMemo(() => {
+    const heroHands: Hand[] = [];
     const points: number[] = [];
     const starts: number[] = [];
     const counters = emptyCounters();
@@ -27,12 +30,13 @@ export function SummaryScreen({ data }: { data: AppData }) {
       for (const id of ids) {
         const h = handsById.get(id);
         if (!h || !hero || !h.players.some((p) => p.name === hero)) continue;
+        heroHands.push(h);
         bb = h.bb;
         cum += (h.net[hero] ?? 0) / h.bb;
         points.push(cum);
       }
     }
-    return { points, starts, totalBb: cum, counters, net, rebuys, bb };
+    return { points, starts, totalBb: cum, counters, net, rebuys, bb, heroHands };
   }, [sessions, handsById, hero]);
 
   if (sessions.length === 0) {
@@ -76,6 +80,13 @@ export function SummaryScreen({ data }: { data: AppData }) {
         <StatsGrid counters={counters} compare />
         <p className="small muted">Intervalli ottimali per un regular 6-max. In rosso i valori fuori, con cosa significano.</p>
       </section>
+
+      {hero && (
+        <section className="card">
+          <h2 style={{ marginTop: 0 }}>Per posizione</h2>
+          <PositionTable hands={heroHands} hero={hero} />
+        </section>
+      )}
     </>
   );
 }

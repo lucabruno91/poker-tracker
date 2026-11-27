@@ -6,6 +6,7 @@ import type { Hand, Session } from "../../types";
 import { Bb, Cards, CopyButton, Kpi, Money, signClass, StatsGrid } from "../components";
 import { formatBb, formatDate, formatEuro, formatSigned } from "../format";
 import { href } from "../router";
+import { PositionTable } from "../PositionTable";
 import { db, labelFor, usePlayers, type AppData } from "../data";
 
 export function SessionDetail({ data, id }: { data: AppData; id: string }) {
@@ -109,6 +110,11 @@ function SessionView({ data, session }: { data: AppData; session: Session }) {
       <section className="card">
         <h2 style={{ marginTop: 0 }}>Statistiche dell'hero</h2>
         <StatsGrid counters={session.hero} compare />
+      </section>
+
+      <section className="card">
+        <h2 style={{ marginTop: 0 }}>Per posizione</h2>
+        <PositionTable hands={hands} hero={hero} />
       </section>
 
       <section className="card">
