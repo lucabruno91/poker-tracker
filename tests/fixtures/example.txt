@@ -1,0 +1,35 @@
+PokerStars Hand #262800000001:  Hold'em No Limit (€0.01/€0.02 EUR) [ADM ID: TEST0000000000001] - 2026/11/25 12:16:12 CET [2026/11/25 6:16:12 ET]
+Table 'Testtable I' 6-max Seat #5 is the button
+Seat 1: AlphaOne (€0.85 in chips) 
+Seat 2: BetaTwo (€2 in chips)
+Seat 3: HeroPlayer (€1.99 in chips)
+Seat 4: GammaFour (€3.17 in chips)
+Seat 5: DeltaFive (€1.77 in chips)
+Seat 6: EpsSix (€2.06 in chips)
+EpsSix: posts small blind €0.01
+AlphaOne: posts big blind €0.02
+*** HOLE CARDS ***
+Dealt to HeroPlayer [Ad Kc]
+BetaTwo: raises €0.03 to €0.05
+HeroPlayer: raises €0.09 to €0.14
+GammaFour: folds 
+DeltaFive: folds
+EpsSix: folds
+AlphaOne: calls €0.12
+BetaTwo: folds
+*** FLOP *** [Ts 5d 9s]
+AlphaOne: checks
+HeroPlayer: bets €0.16
+AlphaOne: folds
+Uncalled bet (€0.16) returned to HeroPlayer
+HeroPlayer collected €0.32 from pot
+HeroPlayer: doesn't show hand
+*** SUMMARY ***
+Total pot €0.34 | Rake €0.02
+Board [Ts 5d 9s]
+Seat 1: AlphaOne (big blind) folded on the Flop
+Seat 2: BetaTwo folded before Flop
+Seat 3: HeroPlayer collected (€0.32)
+Seat 4: GammaFour folded before Flop (didn't bet)
+Seat 5: DeltaFive (button) folded before Flop (didn't bet)
+Seat 6: EpsSix (small blind) folded before Flop

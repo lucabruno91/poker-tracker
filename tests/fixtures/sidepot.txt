@@ -1,0 +1,35 @@
+PokerStars Hand #262800000002:  Hold'em No Limit (€0.01/€0.02 EUR) [ADM ID: TEST0000000000002] - 2026/11/25 12:20:00 CET [2026/11/25 6:20:00 ET]
+Table 'Testtable I' 6-max Seat #3 is the button
+Seat 1: HeroPlayer (€2 in chips)
+Seat 2: Ab9//123 (€0.50 in chips)
+Seat 3: ShortOne (€1 in chips)
+Seat 4: SitterX (€2 in chips) is sitting out
+HeroPlayer: posts small blind €0.01
+Ab9//123: posts big blind €0.02
+*** HOLE CARDS ***
+Dealt to HeroPlayer [Ah Ad]
+ShortOne: raises €0.04 to €0.06
+HeroPlayer: raises €0.14 to €0.20
+Ab9//123 said, "gl"
+Ab9//123: raises €0.30 to €0.50 and is all-in
+ShortOne: calls €0.44
+HeroPlayer: calls €0.30
+*** FLOP *** [2c 5h 9d]
+HeroPlayer: bets €0.50
+ShortOne: calls €0.50 and is all-in
+*** TURN *** [2c 5h 9d] [Js]
+*** RIVER *** [2c 5h 9d Js] [3h]
+*** SHOW DOWN ***
+HeroPlayer: shows [Ah Ad] (a pair of Aces)
+ShortOne: shows [Kc Kd] (a pair of Kings)
+HeroPlayer collected €0.95 from side pot
+Ab9//123: shows [7c 2d] (a pair of Deuces)
+HeroPlayer collected €1.43 from main pot
+SitterX leaves the table
+Something completely unexpected happened
+*** SUMMARY ***
+Total pot €2.50 Main pot €1.43. Side pot €0.95. | Rake €0.12
+Board [2c 5h 9d Js 3h]
+Seat 1: HeroPlayer (small blind) showed [Ah Ad] and won (€2.38) with a pair of Aces
+Seat 2: Ab9//123 (big blind) showed [7c 2d] and lost with a pair of Deuces
+Seat 3: ShortOne (button) showed [Kc Kd] and lost with a pair of Kings

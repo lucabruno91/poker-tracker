@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+# Hand history reali: contengono nomi di altri giocatori (vedi README)
+/fixtures/
+
+# Dati personali: etichette e note sugli avversari, riepiloghi (vedi README)
+/private/

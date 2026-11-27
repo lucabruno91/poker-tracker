@@ -1,0 +1,62 @@
+PokerStars Hand #262800000010:  Hold'em No Limit (€0.01/€0.02 EUR) [ADM ID: TEST0000000000010] - 2026/11/24 21:00:00 CET [2026/11/24 15:00:00 ET]
+Table 'Duotable II' 6-max Seat #2 is the button
+Seat 1: HeroPlayer (€2 in chips)
+Seat 2: VillainHU (€2 in chips)
+VillainHU: posts small blind €0.01
+HeroPlayer: posts big blind €0.02
+*** HOLE CARDS ***
+Dealt to HeroPlayer [Qs Qh]
+VillainHU: raises €0.04 to €0.06
+HeroPlayer: raises €0.12 to €0.18
+VillainHU: calls €0.12
+*** FLOP *** [Ac 7d 2s]
+HeroPlayer: bets €1.82 and is all-in
+VillainHU: calls €1.82 and is all-in
+*** TURN *** [Ac 7d 2s] [8h]
+*** RIVER *** [Ac 7d 2s 8h] [4c]
+*** SHOW DOWN ***
+HeroPlayer: shows [Qs Qh] (a pair of Queens)
+VillainHU: shows [As Kd] (a pair of Aces)
+VillainHU collected €3.90 from pot
+*** SUMMARY ***
+Total pot €4 | Rake €0.10
+Board [Ac 7d 2s 8h 4c]
+Seat 1: HeroPlayer (big blind) showed [Qs Qh] and lost with a pair of Queens
+Seat 2: VillainHU (button) (small blind) showed [As Kd] and won (€3.90) with a pair of Aces
+
+
+
+PokerStars Hand #262800000011:  Hold'em No Limit (€0.01/€0.02 EUR) [ADM ID: TEST0000000000011] - 2026/11/24 21:01:00 CET [2026/11/24 15:01:00 ET]
+Table 'Duotable II' 6-max Seat #1 is the button
+Seat 1: HeroPlayer (€2 in chips)
+Seat 2: VillainHU (€3.90 in chips)
+HeroPlayer: posts small blind €0.01
+VillainHU: posts big blind €0.02
+*** HOLE CARDS ***
+Dealt to HeroPlayer [9c 8c]
+HeroPlayer: raises €0.04 to €0.06
+VillainHU: folds
+Uncalled bet (€0.04) returned to HeroPlayer
+HeroPlayer collected €0.04 from pot
+*** SUMMARY ***
+Total pot €0.04 | Rake €0
+Seat 1: HeroPlayer (button) (small blind) collected (€0.04)
+Seat 2: VillainHU (big blind) folded before Flop
+
+
+
+PokerStars Hand #262800000012:  Hold'em No Limit (€0.01/€0.02 EUR) [ADM ID: TEST0000000000012] - 2026/11/26 20:00:00 CET [2026/11/26 14:00:00 ET]
+Table 'Duotable II' 6-max Seat #2 is the button
+Seat 1: HeroPlayer (€2.02 in chips)
+Seat 2: VillainHU (€3.88 in chips)
+VillainHU: posts small blind €0.01
+HeroPlayer: posts big blind €0.02
+*** HOLE CARDS ***
+Dealt to HeroPlayer [7h 2c]
+VillainHU: folds
+Uncalled bet (€0.01) returned to HeroPlayer
+HeroPlayer collected €0.02 from pot
+*** SUMMARY ***
+Total pot €0.02 | Rake €0
+Seat 1: HeroPlayer (big blind) collected (€0.02)
+Seat 2: VillainHU (button) (small blind) folded before Flop

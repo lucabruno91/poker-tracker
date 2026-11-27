@@ -1,0 +1,37 @@
+PokerStars Hand #262800000020:  Hold'em No Limit (€0.01/€0.02 EUR) [ADM ID: TEST0000000000020] - 2026/11/25 9:05:00 CET [2026/11/25 3:05:00 ET]
+Table 'Quattro III' 6-max Seat #4 is the button
+Seat 1: LimperOne (€2 in chips)
+Seat 2: BigTwo (€2 in chips)
+Seat 3: HeroPlayer (€2 in chips)
+Seat 4: ButtonFour (€2 in chips)
+LimperOne: posts small blind €0.01
+BigTwo: posts big blind €0.02
+*** HOLE CARDS ***
+Dealt to HeroPlayer [5s 5c]
+HeroPlayer: calls €0.02
+ButtonFour: calls €0.02
+LimperOne: calls €0.01
+BigTwo: checks
+*** FLOP *** [Kh 8s 3d]
+LimperOne: checks
+BigTwo: bets €0.04
+HeroPlayer: folds
+ButtonFour: calls €0.04
+LimperOne: folds
+*** TURN *** [Kh 8s 3d] [Tc]
+BigTwo: checks
+ButtonFour: checks
+*** RIVER *** [Kh 8s 3d Tc] [2h]
+BigTwo: checks
+ButtonFour: checks
+*** SHOW DOWN ***
+BigTwo: shows [Qd Jd] (high card King)
+ButtonFour: shows [Ks 4s] (a pair of Kings)
+ButtonFour collected €0.15 from pot
+*** SUMMARY ***
+Total pot €0.16 | Rake €0.01
+Board [Kh 8s 3d Tc 2h]
+Seat 1: LimperOne (small blind) folded on the Flop
+Seat 2: BigTwo (big blind) showed [Qd Jd] and lost with high card King
+Seat 3: HeroPlayer folded on the Flop
+Seat 4: ButtonFour (button) showed [Ks 4s] and won (€0.15) with a pair of Kings
