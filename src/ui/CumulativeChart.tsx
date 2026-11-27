@@ -54,10 +54,13 @@ interface Props {
   /** Selezione corrente; con `onSelect` il grafico diventa interattivo. */
   selection?: ChartRange | null;
   onSelect?: (range: ChartRange | null) => void;
+  /** Etichette delle linee nascoste; con `onToggleLine` la legenda le attiva e disattiva. */
+  hidden?: string[];
+  onToggleLine?: (label: string) => void;
 }
 
 /** Grafico dei risultati cumulati in bb (una o più linee), SVG scritto a mano. */
-export function CumulativeChart({ lines, sessionStarts, selection = null, onSelect }: Props) {
+export function CumulativeChart({ lines, sessionStarts, selection = null, onSelect, hidden = [], onToggleLine }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   // Il punto di partenza sta in un ref: gli eventi del puntatore possono arrivare
   // prima che React ridisegni, e uno stato letto dalla closure sarebbe vecchio.
@@ -67,7 +70,10 @@ export function CumulativeChart({ lines, sessionStarts, selection = null, onSele
   const count = Math.max(0, ...lines.map((l) => l.points.length));
   if (count === 0) return <p className="muted">Nessuna mano da mostrare.</p>;
 
-  const all = [0, ...lines.flatMap((l) => l.points)];
+  // La scala verticale segue solo le linee visibili (almeno una resta sempre visibile).
+  const visible = lines.filter((l) => !hidden.includes(l.label));
+  const drawn = visible.length > 0 ? visible : lines;
+  const all = [0, ...drawn.flatMap((l) => l.points)];
   const min = Math.min(...all);
   const max = Math.max(...all);
   const step = niceStep(max - min || 10);
@@ -120,7 +126,10 @@ export function CumulativeChart({ lines, sessionStarts, selection = null, onSele
   const shown: ChartRange | null = preview ?? selection;
 
   const selLabel = selection ? `, selezionate le mani da ${selection[0] + 1} a ${selection[1] + 1}` : "";
-  const ariaLabel = `Risultato cumulato su ${count} mani: ${finals.map((f) => `${f.label} ${formatBb(f.last)}`).join(", ")}${selLabel}`;
+  const ariaLabel = `Risultato cumulato su ${count} mani: ${finals
+    .filter((f) => drawn.some((l) => l.label === f.label))
+    .map((f) => `${f.label} ${formatBb(f.last)}`)
+    .join(", ")}${selLabel}`;
 
   // --- Selezione da tastiera: campi numerici e sessione precedente/successiva.
   const ranges = sessionRanges(sessionStarts, count);
@@ -171,7 +180,7 @@ export function CumulativeChart({ lines, sessionStarts, selection = null, onSele
           ))}
         <line className="zero" x1={PAD.left} x2={W - PAD.right} y1={y(0)} y2={y(0)} />
         {/* La prima linea (il totale) va disegnata per ultima, sopra le altre. */}
-        {[...lines].reverse().map((l) => (
+        {[...drawn].reverse().map((l) => (
           <path key={l.label} className={`line ${l.className}`} d={pathOf(l.points)} />
         ))}
         {shown && (
@@ -191,12 +200,31 @@ export function CumulativeChart({ lines, sessionStarts, selection = null, onSele
       </svg>
       {lines.length > 1 && (
         <figcaption className="chart-legend">
-          {finals.map((f) => (
-            <span key={f.label} className="legend-item">
-              <span className={`legend-swatch ${f.className}`} aria-hidden="true" />
-              {f.tip ? <Term tip={f.tip}>{f.label}</Term> : f.label} <span className={`num ${f.last > 0 ? "pos" : f.last < 0 ? "neg" : ""}`}>{formatBb(f.last)}</span>
-            </span>
-          ))}
+          {finals.map((f) => {
+            const on = !hidden.includes(f.label);
+            const lastVisible = on && visible.length <= 1;
+            return (
+              <span key={f.label} className={`legend-item${on ? "" : " off"}`}>
+                {onToggleLine ? (
+                  <button
+                    type="button"
+                    className="legend-toggle"
+                    aria-pressed={on}
+                    aria-label={`${on ? "Nascondi" : "Mostra"} la linea ${f.label}`}
+                    title={lastVisible ? "Deve restare almeno una linea" : `${on ? "Nascondi" : "Mostra"} la linea`}
+                    disabled={lastVisible}
+                    onClick={() => onToggleLine(f.label)}
+                  >
+                    <span className={`legend-swatch ${f.className}`} aria-hidden="true" />
+                  </button>
+                ) : (
+                  <span className={`legend-swatch ${f.className}`} aria-hidden="true" />
+                )}
+                <span className="legend-label">{f.tip ? <Term tip={f.tip}>{f.label}</Term> : f.label}</span>{" "}
+                <span className={`num ${f.last > 0 ? "pos" : f.last < 0 ? "neg" : ""}`}>{formatBb(f.last)}</span>
+              </span>
+            );
+          })}
         </figcaption>
       )}
       {onSelect && (
