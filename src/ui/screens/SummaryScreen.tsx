@@ -4,10 +4,11 @@ import { buildResultSeries, sessionAtRange, summarizeRange, type ResultSeries } 
 import { CumulativeChart, type ChartRange } from "../CumulativeChart";
 import { HandList, PAGE_SIZE, Pager } from "../HandList";
 import { useDismiss } from "../useDismiss";
+import { useLiveQuery } from "dexie-react-hooks";
 import { Kpi, signClass, StatsGrid } from "../components";
 import { formatBb, formatDate, formatEuro, formatSigned } from "../format";
 import { href } from "../router";
-import { useFilter, type AppData } from "../data";
+import { db, useFilter, type AppData } from "../data";
 import { FilterBar } from "../FilterBar";
 import { PositionTable } from "../PositionTable";
 import { StartingHandsGrid } from "../StartingHandsGrid";
@@ -40,6 +41,19 @@ function AllInSummary({ state }: { state: AllInEvState }) {
       <span className={`num ${signClass(luck)}`}>{formatBb(luck)}</span>
     </p>
   );
+}
+
+const CHART_HIDDEN_KEY = "chartHidden";
+
+/** Linee nascoste salvate (JSON di etichette); valori non validi → nessuna. */
+export function parseHiddenLines(value: unknown): string[] {
+  if (typeof value !== "string") return [];
+  try {
+    const data: unknown = JSON.parse(value);
+    return Array.isArray(data) ? data.filter((x): x is string => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
 }
 
 /** Riepilogo ed elenco delle mani del tratto selezionato nel grafico (SPEC §6.9). */
@@ -120,6 +134,14 @@ export function SummaryScreen({ data }: { data: AppData }) {
   // Un clic fuori dal grafico e dal pannello, o Esc, toglie la selezione.
   const selectionArea = useRef<HTMLDivElement>(null);
   useDismiss(selectionArea, selection !== null, () => setSelection(null));
+
+  // Linee nascoste del grafico, salvate tra le visite (impostazione `chartHidden`).
+  const savedHidden = useLiveQuery(async () => (await db.settings.get(CHART_HIDDEN_KEY))?.value ?? null, []);
+  const hiddenLines = useMemo(() => parseHiddenLines(savedHidden), [savedHidden]);
+  const toggleLine = (label: string) => {
+    const next = hiddenLines.includes(label) ? hiddenLines.filter((l) => l !== label) : [...hiddenLines, label];
+    void db.settings.put({ key: CHART_HIDDEN_KEY, value: JSON.stringify(next) });
+  };
   // Cambiando i filtri cambia la serie: la selezione non avrebbe più senso.
   useEffect(() => setSelection(null), [sessions]);
 
@@ -183,6 +205,8 @@ export function SummaryScreen({ data }: { data: AppData }) {
                 sessionStarts={series.sessionStarts}
                 selection={selection}
                 onSelect={setSelection}
+                hidden={hiddenLines}
+                onToggleLine={toggleLine}
               />
               {selection && (
                 <SelectionPanel

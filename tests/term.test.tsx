@@ -54,3 +54,14 @@ describe("<Term>", () => {
     expect(tip.classList.contains("open")).toBe(false);
   });
 });
+
+describe("parseHiddenLines", () => {
+  it("legge le linee nascoste salvate e ignora i valori non validi", async () => {
+    const { parseHiddenLines } = await import("../src/ui/screens/SummaryScreen");
+    expect(parseHiddenLines(JSON.stringify(["Showdown", "All-in EV"]))).toEqual(["Showdown", "All-in EV"]);
+    expect(parseHiddenLines(JSON.stringify(["Showdown", 3, null]))).toEqual(["Showdown"]);
+    expect(parseHiddenLines("{rotto")).toEqual([]);
+    expect(parseHiddenLines(null)).toEqual([]);
+    expect(parseHiddenLines(JSON.stringify({ a: 1 }))).toEqual([]);
+  });
+});

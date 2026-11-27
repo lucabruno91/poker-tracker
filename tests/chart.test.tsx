@@ -78,3 +78,42 @@ describe("CumulativeChart — gesti rapidi", () => {
     expect(onSelect).toHaveBeenCalledWith([7, 9]);
   });
 });
+
+describe("CumulativeChart — legenda", () => {
+  const lines = [
+    { label: "Totale", points: [1, 2, 3], className: "line-total" },
+    { label: "Showdown", points: [10, 20, 30], className: "line-sd" },
+    { label: "Senza showdown", points: [-1, -2, -3], className: "line-nsd" },
+  ];
+  const renderChart = (hidden: string[]) => {
+    const onToggleLine = vi.fn();
+    const r = render(<CumulativeChart lines={lines} sessionStarts={[0]} hidden={hidden} onToggleLine={onToggleLine} />);
+    return { ...r, onToggleLine };
+  };
+
+  it("il trattino colorato è un pulsante che attiva e disattiva la linea", () => {
+    const { onToggleLine } = renderChart([]);
+    const btn = screen.getByRole("button", { name: "Nascondi la linea Showdown" });
+    expect(btn.getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(btn);
+    expect(onToggleLine).toHaveBeenCalledWith("Showdown");
+  });
+
+  it("una linea nascosta non è disegnata e la scala si adatta", () => {
+    const { container } = renderChart(["Showdown"]);
+    expect(container.querySelectorAll("path.line")).toHaveLength(2);
+    expect(container.querySelector("path.line-sd")).toBeNull();
+    // Senza la linea che arriva a 30, l'asse non supera più 10.
+    const ticks = [...container.querySelectorAll("svg text")].map((t) => Number(t.textContent)).filter((n) => !Number.isNaN(n));
+    expect(Math.max(...ticks)).toBeLessThanOrEqual(10);
+    const off = screen.getByRole("button", { name: "Mostra la linea Showdown" });
+    expect(off.getAttribute("aria-pressed")).toBe("false");
+    expect(off.closest(".legend-item")?.classList.contains("off")).toBe(true);
+  });
+
+  it("l'ultima linea visibile non si può nascondere", () => {
+    renderChart(["Showdown", "Senza showdown"]);
+    const last = screen.getByRole("button", { name: "Nascondi la linea Totale" }) as HTMLButtonElement;
+    expect(last.disabled).toBe(true);
+  });
+});
