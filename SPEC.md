@@ -293,6 +293,14 @@ Il grafico cumulato (in bb, mano per mano, sessioni nell'ordine dell'elenco) ha 
 
 A ogni mano: totale = showdown + senza showdown.
 
+### 6.10 Filtri per periodo e stake
+
+Il filtro si applica alle **sessioni**: una sessione è un solo tavolo, un solo giorno e un solo stake, così ricariche e stack restano coerenti. Tutto ciò che il Riepilogo e l'elenco delle sessioni calcolano deriva dalle sessioni filtrate.
+- **Periodo**: tutto; ultimi 7 giorni (oggi e i 6 precedenti); ultimi 30 giorni; intervallo personalizzato. Gli estremi sono inclusi e si confronta la data della sessione (ora locale del sito).
+- **Stake**: `€sb/€bb` della prima mano della sessione.
+
+Il filtro resta salvato in `settings` (chiave `filters`). Il bb/100 si calcola dal risultato in bb sommato mano per mano, così è corretto anche con stake diversi.
+
 ## 7. Persistenza
 
 Database IndexedDB tramite Dexie, nome `poker-tracker`, versione 1:
