@@ -280,6 +280,10 @@ Precedenza: etichetta dell'utente > etichetta di Claude > etichetta automatica.
 
 Per ogni mano dell'hero si prende la sua posizione (6.4) e si sommano i contatori della mano (6.5) nella riga di quella posizione. Il risultato in bb si somma mano per mano (`net / bb` di ciascuna mano). Ordine delle righe: UTG, HJ, CO, BTN, SB, BB; le posizioni senza mani non compaiono. La somma delle righe è uguale ai totali dell'hero.
 
+### 6.8 Risultati per mano iniziale
+
+Le carte dell'hero (`Dealt to`) si riducono a una delle 169 classi: coppia (`QQ`), suited (`AKs`) o offsuit (`AKo`), con il rango più alto per primo. Per ogni classe: numero di mani, mani VPIP e risultato in bb sommato mano per mano. Griglia 13×13 con ranghi da A a 2: coppie in diagonale, suited sopra, offsuit sotto. La somma della griglia è uguale al totale delle mani con carte note.
+
 ## 7. Persistenza
 
 Database IndexedDB tramite Dexie, nome `poker-tracker`, versione 1:

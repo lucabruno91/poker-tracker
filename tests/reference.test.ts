@@ -14,6 +14,7 @@ import { handStats } from "../src/stats/handStats";
 import { addInto, emptyCounters } from "../src/stats/aggregate";
 import { buildSessions } from "../src/stats/sessions";
 import { heroByPosition } from "../src/stats/byPosition";
+import { heroByStartingHand } from "../src/stats/startingHands";
 import type { Counters, Hand } from "../src/types";
 
 interface Reference {
@@ -84,6 +85,12 @@ describe.skipIf(!enabled)("valori di riferimento (fixture reali)", () => {
     expect(rows.reduce((a, r) => a + r.counters.hands, 0)).toBe(ref.totals.hands);
     expect(rows.reduce((a, r) => a + r.counters.net, 0)).toBe(ref.totals.net);
     expect(rows.reduce((a, r) => a + r.netBb, 0)).toBeCloseTo(ref.totals.netBb, 9);
+  });
+
+  it("per mano iniziale: la somma dà i totali", () => {
+    const res = [...heroByStartingHand(hands, ref.hero).values()];
+    expect(res.reduce((a, r) => a + r.hands, 0)).toBe(ref.totals.hands);
+    expect(res.reduce((a, r) => a + r.netBb, 0)).toBeCloseTo(ref.totals.netBb, 9);
   });
 
   for (const expected of ref.sessions) {

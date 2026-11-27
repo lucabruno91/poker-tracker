@@ -7,6 +7,7 @@ import { formatBb, formatEuro, formatSigned } from "../format";
 import { href } from "../router";
 import type { AppData } from "../data";
 import { PositionTable } from "../PositionTable";
+import { StartingHandsGrid } from "../StartingHandsGrid";
 import type { Hand } from "../../types";
 
 export function SummaryScreen({ data }: { data: AppData }) {
@@ -85,6 +86,13 @@ export function SummaryScreen({ data }: { data: AppData }) {
         <section className="card">
           <h2 style={{ marginTop: 0 }}>Per posizione</h2>
           <PositionTable hands={heroHands} hero={hero} />
+        </section>
+      )}
+
+      {hero && (
+        <section className="card">
+          <h2 style={{ marginTop: 0 }}>Per mano iniziale</h2>
+          <StartingHandsGrid hands={heroHands} hero={hero} />
         </section>
       )}
     </>
