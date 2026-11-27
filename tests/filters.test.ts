@@ -36,6 +36,16 @@ describe("filterSessions", () => {
     expect(filterSessions(sessions, byId, NO_FILTER, TODAY)).toEqual(sessions);
   });
 
+  it("oggi: solo le sessioni della data odierna, relativo al giorno corrente", () => {
+    expect(dateRange({ period: "today" }, TODAY)).toEqual({ from: TODAY, to: TODAY });
+    expect(dates({ period: "today" }, "2026-11-25")).toEqual(["2026-11-25", "2026-11-25"]);
+    expect(dates({ period: "today" }, "2026-11-26")).toEqual(["2026-11-26"]);
+    expect(dates({ period: "today" }, TODAY)).toEqual([]);
+    expect(dates({ period: "today", stake: "€0,01/€0,02" }, "2026-11-24")).toEqual(["2026-11-24"]);
+    expect(isActive({ period: "today" })).toBe(true);
+    expect(parseFilter(JSON.stringify({ period: "today" }))).toEqual({ period: "today" });
+  });
+
   it("ultimi 7 giorni rispetto a oggi", () => {
     expect(dates({ period: "7d" })).toHaveLength(4);
     expect(dates({ period: "7d" }, "2026-12-01")).toEqual(["2026-11-25", "2026-11-25", "2026-11-26"]);
