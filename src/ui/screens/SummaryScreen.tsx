@@ -1,21 +1,24 @@
 import { useMemo } from "react";
-import { addInto, bbPer100, emptyCounters } from "../../stats/aggregate";
+import { addInto, emptyCounters } from "../../stats/aggregate";
 import { buildResultSeries } from "../../stats/series";
 import { CumulativeChart } from "../CumulativeChart";
 import { Kpi, signClass, StatsGrid } from "../components";
 import { formatBb, formatEuro, formatSigned } from "../format";
 import { href } from "../router";
-import type { AppData } from "../data";
+import { useFilter, type AppData } from "../data";
+import { FilterBar } from "../FilterBar";
 import { PositionTable } from "../PositionTable";
 import { StartingHandsGrid } from "../StartingHandsGrid";
 import type { Hand } from "../../types";
 
 export function SummaryScreen({ data }: { data: AppData }) {
-  const { sessions, handsById, hero } = data;
+  const filterState = useFilter(data);
+  const { handsById, hero } = data;
+  const { sessions } = filterState;
 
   const series = useMemo(() => buildResultSeries(sessions, handsById, hero), [sessions, handsById, hero]);
 
-  const { counters, net, rebuys, bb, heroHands } = useMemo(() => {
+  const { counters, net, rebuys, heroHands } = useMemo(() => {
     const counters = emptyCounters();
     const heroHands: Hand[] = [];
     let net = 0;
@@ -29,14 +32,12 @@ export function SummaryScreen({ data }: { data: AppData }) {
         if (h && hero && h.players.some((p) => p.name === hero)) heroHands.push(h);
       }
     }
-    const last = sessions[sessions.length - 1];
-    const bb = (last && handsById.get(last.handIds[0] ?? "")?.bb) || 2;
-    return { counters, net, rebuys, bb, heroHands };
+    return { counters, net, rebuys, heroHands };
   }, [sessions, handsById, hero]);
 
   const totalBb = series.total[series.total.length - 1] ?? 0;
 
-  if (sessions.length === 0) {
+  if (data.sessions.length === 0) {
     return (
       <>
         <h1>Riepilogo</h1>
@@ -47,12 +48,15 @@ export function SummaryScreen({ data }: { data: AppData }) {
     );
   }
 
-  const per100 = bbPer100(net, bb, counters.hands);
+  // bb/100 dal risultato in bb sommato mano per mano: corretto anche con stake diversi.
+  const per100 = counters.hands > 0 ? (100 * totalBb) / counters.hands : null;
 
   return (
     <>
       <h1>Riepilogo</h1>
       <p className="muted small">Hero: {hero ?? "—"}</p>
+      <FilterBar data={data} state={filterState} />
+      {sessions.length === 0 && <p className="muted">Nessuna sessione corrisponde al filtro.</p>}
       <div className="kpis">
         <Kpi label="Sessioni" value={String(sessions.length)} />
         <Kpi label="Mani" value={String(counters.hands)} />

@@ -1,19 +1,24 @@
 import { Bb, Money } from "../components";
 import { formatDate, formatEuro } from "../format";
 import { href } from "../router";
-import type { AppData } from "../data";
+import { useFilter, type AppData } from "../data";
+import { FilterBar } from "../FilterBar";
 
 export function SessionsScreen({ data }: { data: AppData }) {
-  const sessions = [...data.sessions].reverse();
+  const filterState = useFilter(data);
+  const sessions = [...filterState.sessions].reverse();
   const bbOf = (ids: string[]) => data.handsById.get(ids[0] ?? "")?.bb ?? 2;
 
   return (
     <>
       <h1>Sessioni</h1>
-      {sessions.length === 0 ? (
+      {data.sessions.length > 0 && <FilterBar data={data} state={filterState} />}
+      {data.sessions.length === 0 ? (
         <p>
           Nessuna sessione. <a href={href.import()}>Importa le hand history</a>.
         </p>
+      ) : sessions.length === 0 ? (
+        <p className="muted">Nessuna sessione corrisponde al filtro.</p>
       ) : (
         <div className="table-wrap card">
           <table>
